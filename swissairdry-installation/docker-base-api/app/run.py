@@ -7,15 +7,17 @@ Hauptmodul zum Starten des SwissAirDry API-Servers.
 @copyright 2023-2025 Swiss Air Dry Team
 """
 
+import os
 import uvicorn
-from main import app
-from config import API_PORT, DEBUG
+from config import API_PREFIX
 
 if __name__ == "__main__":
     print("SwissAirDry API Server startet...")
+    
+    # Server starten
     uvicorn.run(
-        "main:app", 
-        host="0.0.0.0", 
-        port=API_PORT, 
-        reload=DEBUG
+        "main:app",
+        host="0.0.0.0",
+        port=int(os.environ.get("API_PORT", 5000)),
+        reload=os.environ.get("DEBUG", "False").lower() == "true"
     )

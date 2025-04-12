@@ -8,75 +8,85 @@ Diese Datei enthält globale Konfigurationseinstellungen für die SwissAirDry-An
 """
 
 import os
+from typing import Dict, Any, List, Optional
 from dotenv import load_dotenv
 
-# Umgebungsvariablen laden
+# Umgebungsvariablen aus .env-Datei laden, falls vorhanden
 load_dotenv()
 
-# API-Konfiguration
+# API-Einstellungen
 API_VERSION = "1.0.0"
-DEBUG = os.getenv("DEBUG", "False").lower() == "true"
-SECRET_KEY = os.getenv("SECRET_KEY", "supersecretkey")
-API_PORT = int(os.getenv("API_PORT", "5000"))
+API_TITLE = "SwissAirDry API"
+API_DESCRIPTION = "API für die SwissAirDry-Anwendung zur Verwaltung von Trocknungsgeräten und Aufträgen"
+API_PREFIX = "/api"
 
-# API-Domains und URLs
-API_DOMAIN = os.getenv("API_DOMAIN", "localhost:5000")
-BASE_URL = os.getenv("BASE_URL", f"http://{API_DOMAIN}")
+# Datenbank-Einstellungen (aus Umgebungsvariablen)
+DATABASE_URL = os.environ.get("DATABASE_URL", "postgresql://postgres:postgres@localhost:5432/swissairdry")
 
-# Datenbank-Konfiguration
-DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://swissairdry:swissairdry@postgres:5432/swissairdry")
-
-# Nextcloud-Konfiguration
-NEXTCLOUD_URL = os.getenv("NEXTCLOUD_URL", "")
-NEXTCLOUD_USER = os.getenv("NEXTCLOUD_USER", "")
-NEXTCLOUD_PASSWORD = os.getenv("NEXTCLOUD_PASSWORD", "")
-
-# Dateipfade
-UPLOAD_FOLDER = os.path.join(os.path.dirname(os.path.abspath(__file__)), "uploads")
-LOG_FOLDER = os.path.join(os.path.dirname(os.path.abspath(__file__)), "logs")
-
-# MQTT-Konfiguration
-MQTT_BROKER = os.getenv("MQTT_BROKER", "mqtt")
-MQTT_PORT = int(os.getenv("MQTT_PORT", "1883"))
-MQTT_USERNAME = os.getenv("MQTT_USERNAME", "")
-MQTT_PASSWORD = os.getenv("MQTT_PASSWORD", "")
-
-# CORS-Konfiguration
-CORS_ORIGINS = [
-    "http://localhost",
-    "http://localhost:8080",
-    NEXTCLOUD_URL,
-    "*"  # Im Entwicklungsmodus erlauben wir alle Ursprünge
+# MQTT-Einstellungen
+MQTT_BROKER = os.environ.get("MQTT_BROKER", "localhost")
+MQTT_PORT = int(os.environ.get("MQTT_PORT", 1883))
+MQTT_USERNAME = os.environ.get("MQTT_USERNAME", None)
+MQTT_PASSWORD = os.environ.get("MQTT_PASSWORD", None)
+MQTT_CLIENT_ID = "swissairdry-api"
+MQTT_TOPICS = [
+    "swissairdry/devices/#",
+    "swissairdry/sensors/#",
+    "swissairdry/gateways/#"
 ]
 
-# API-Pfade
-API_PREFIX = "/api"
-API_V1_STR = f"{API_PREFIX}/v1"
-ADMIN_PREFIX = "/admin"
+# Nextcloud-Einstellungen
+NEXTCLOUD_ENABLED = os.environ.get("NEXTCLOUD_URL") is not None
+NEXTCLOUD_BASE_URL = os.environ.get("NEXTCLOUD_URL", "")
+NEXTCLOUD_USERNAME = os.environ.get("NEXTCLOUD_USERNAME", "")
+NEXTCLOUD_PASSWORD = os.environ.get("NEXTCLOUD_PASSWORD", "")
 
-# Standardwerte für Pagination
-DEFAULT_PAGE_SIZE = 20
-MAX_PAGE_SIZE = 100
+# Logging-Einstellungen
+LOG_LEVEL = os.environ.get("LOG_LEVEL", "INFO")
+LOG_FORMAT = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 
-# Erstellen der benötigten Verzeichnisse
-os.makedirs(UPLOAD_FOLDER, exist_ok=True)
-os.makedirs(LOG_FOLDER, exist_ok=True)
+# Redis-Cache-Einstellungen (optional)
+REDIS_URL = os.environ.get("REDIS_URL", None)
+REDIS_ENABLED = REDIS_URL is not None
+
+# Security-Einstellungen
+JWT_SECRET = os.environ.get("JWT_SECRET", "default-dev-secret-key-change-in-production")
+JWT_ALGORITHM = "HS256"
+JWT_EXPIRE_MINUTES = 60 * 8  # 8 Stunden
+
+# CORS-Einstellungen
+CORS_ORIGINS = os.environ.get("CORS_ORIGINS", "*").split(",")
+
+# Feature-Flags
+FEATURE_MQTT_ENABLED = os.environ.get("FEATURE_MQTT_ENABLED", "true").lower() == "true"
+FEATURE_NEXTCLOUD_ENABLED = os.environ.get("FEATURE_NEXTCLOUD_ENABLED", "true").lower() == "true"
+
+# Pfadeinstellungen
+UPLOAD_FOLDER = os.environ.get("UPLOAD_FOLDER", "/tmp/swissairdry/uploads")
+TEMPLATE_FOLDER = "templates"
+STATIC_FOLDER = "static"
 
 def get_full_url(path: str) -> str:
     """
     Gibt die vollständige URL für einen bestimmten API-Pfad zurück.
     """
-    if path.startswith("/"):
-        path = path[1:]
-    return f"{BASE_URL}/{path}"
+    base_url = os.environ.get("API_BASE_URL", "http://localhost:5000")
+    if base_url.endswith("/"):
+        base_url = base_url[:-1]
+    if not path.startswith("/"):
+        path = "/" + path
+    return f"{base_url}{path}"
 
 def get_nextcloud_url(path: str) -> str:
     """
     Gibt die vollständige URL für einen bestimmten Nextcloud-Pfad zurück.
     """
-    if not NEXTCLOUD_URL:
-        return ""
-        
-    if path.startswith("/"):
-        path = path[1:]
-    return f"{NEXTCLOUD_URL}/{path}"
+    if not NEXTCLOUD_ENABLED:
+        return None
+    
+    base_url = NEXTCLOUD_BASE_URL
+    if base_url.endswith("/"):
+        base_url = base_url[:-1]
+    if not path.startswith("/"):
+        path = "/" + path
+    return f"{base_url}{path}"

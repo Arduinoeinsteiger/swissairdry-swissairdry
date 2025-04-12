@@ -1,0 +1,37 @@
+modules = ["python-3.11"]
+[workflows]
+runButton = "Project"
+
+[[workflows.workflow]]
+name = "Project"
+mode = "parallel"
+author = "agent"
+
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Docker Base API"
+
+[[workflows.workflow]]
+name = "Docker Base API"
+author = "agent"
+
+[workflows.workflow.metadata]
+agentRequireRestartOnSave = false
+
+[[workflows.workflow.tasks]]
+task = "packager.installForAll"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "cd docker-base-api/app && python run.py"
+waitForPort = 5000
+
+[deployment]
+run = ["sh", "-c", "cd docker-base-api/app && python run.py"]
+
+[nix]
+channel = "stable-24_05"
+
+[[ports]]
+localPort = 5000
+externalPort = 80

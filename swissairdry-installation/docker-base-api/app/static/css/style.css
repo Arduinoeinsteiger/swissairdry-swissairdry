@@ -1,0 +1,168 @@
+/* 
+ * SwissAirDry - Hauptstylesheets
+ * 
+ * Enthält die Stile für die Admin-Benutzeroberfläche.
+ * 
+ * @author Swiss Air Dry Team <info@swissairdry.com>
+ * @copyright 2023-2025 Swiss Air Dry Team
+ */
+
+:root {
+  --primary-color: #007bff;
+  --secondary-color: #6c757d;
+  --success-color: #28a745;
+  --danger-color: #dc3545;
+  --warning-color: #ffc107;
+  --info-color: #17a2b8;
+  --light-color: #f8f9fa;
+  --dark-color: #343a40;
+  --background-color: #ffffff;
+  --text-color: #212529;
+  --border-color: #dee2e6;
+  --shadow-color: rgba(0, 0, 0, 0.15);
+}
+
+/* Dark Mode */
+[data-theme="dark"] {
+  --primary-color: #0d6efd;
+  --secondary-color: #6c757d;
+  --success-color: #198754;
+  --danger-color: #dc3545;
+  --warning-color: #ffc107;
+  --info-color: #0dcaf0;
+  --light-color: #f8f9fa;
+  --dark-color: #212529;
+  --background-color: #1a1a1a;
+  --text-color: #f0f0f0;
+  --border-color: #444;
+  --shadow-color: rgba(0, 0, 0, 0.5);
+}
+
+body {
+  background-color: var(--background-color);
+  color: var(--text-color);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Header und Navigation */
+.navbar {
+  box-shadow: 0 2px 4px var(--shadow-color);
+}
+
+/* Cards */
+.card {
+  background-color: var(--background-color);
+  border-color: var(--border-color);
+  box-shadow: 0 2px 4px var(--shadow-color);
+  transition: transform 0.3s ease;
+  margin-bottom: 1.5rem;
+}
+
+.card:hover {
+  transform: translateY(-3px);
+}
+
+.card-title {
+  color: var(--primary-color);
+}
+
+.card-header {
+  background-color: rgba(0, 0, 0, 0.03);
+  border-bottom: 1px solid var(--border-color);
+}
+
+/* Tabellen */
+.table {
+  color: var(--text-color);
+}
+
+.table th {
+  background-color: rgba(0, 0, 0, 0.03);
+}
+
+.table-hover tbody tr:hover {
+  background-color: rgba(0, 0, 0, 0.05);
+}
+
+/* Dark Mode Anpassungen für Tabellen */
+[data-theme="dark"] .table {
+  color: var(--text-color);
+}
+
+[data-theme="dark"] .table th {
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+[data-theme="dark"] .table-hover tbody tr:hover {
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+/* Buttons */
+.btn-primary {
+  background-color: var(--primary-color);
+  border-color: var(--primary-color);
+}
+
+.btn-secondary {
+  background-color: var(--secondary-color);
+  border-color: var(--secondary-color);
+}
+
+.btn-success {
+  background-color: var(--success-color);
+  border-color: var(--success-color);
+}
+
+.btn-danger {
+  background-color: var(--danger-color);
+  border-color: var(--danger-color);
+}
+
+/* Forms */
+.form-control {
+  background-color: var(--background-color);
+  border-color: var(--border-color);
+  color: var(--text-color);
+}
+
+.form-control:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+/* Dark Mode Anpassungen für Forms */
+[data-theme="dark"] .form-control {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Footer */
+.footer {
+  background-color: var(--light-color);
+  border-top: 1px solid var(--border-color);
+  color: var(--text-color);
+}
+
+[data-theme="dark"] .footer {
+  background-color: var(--dark-color);
+}
+
+/* Responsives Design */
+@media (max-width: 768px) {
+  .card {
+    margin-bottom: 1rem;
+  }
+  
+  .container {
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+}
+
+/* Hilfsklassen */
+.text-muted {
+  color: var(--secondary-color) !important;
+}
+
+.border-rounded {
+  border-radius: 0.5rem;
+}

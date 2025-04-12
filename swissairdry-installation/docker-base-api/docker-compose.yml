@@ -1,61 +1,97 @@
 version: '3.8'
 
 services:
+  # API-Server
   api:
     build:
-      context: ./app
+      context: .
       dockerfile: Dockerfile
-    container_name: swissairdry-api
     restart: unless-stopped
     ports:
-      - "${API_PORT:-5000}:5000"
+      - "5000:5000"
     volumes:
       - ./app:/app
-      - ./data/uploads:/app/uploads
-      - ./data/logs:/app/logs
+      - api_data:/app/data
+      - api_static:/app/static
+      - api_uploads:/app/uploads
     environment:
-      - DEBUG=${DEBUG:-False}
-      - SECRET_KEY=${SECRET_KEY:-supersecretkey}
-      - DATABASE_URL=${DATABASE_URL:-postgresql://swissairdry:swissairdry@postgres:5432/swissairdry}
-      - API_DOMAIN=${API_DOMAIN:-localhost:5000}
-      - BASE_URL=${BASE_URL:-http://localhost:5000}
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-swissairdry}:${POSTGRES_PASSWORD:-swissairdry}@postgres:5432/${POSTGRES_DB:-swissairdry}
+      - MQTT_BROKER=${MQTT_BROKER:-mqtt}
+      - MQTT_PORT=${MQTT_PORT:-1883}
+      - MQTT_USERNAME=${MQTT_USERNAME:-}
+      - MQTT_PASSWORD=${MQTT_PASSWORD:-}
       - NEXTCLOUD_URL=${NEXTCLOUD_URL:-}
-      - NEXTCLOUD_USER=${NEXTCLOUD_USER:-}
+      - NEXTCLOUD_USERNAME=${NEXTCLOUD_USERNAME:-}
       - NEXTCLOUD_PASSWORD=${NEXTCLOUD_PASSWORD:-}
+      - JWT_SECRET=${JWT_SECRET:-geheim-niemals-im-produktiveinsatz-verwenden}
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - API_PORT=5000
+      - DEBUG=${DEBUG:-False}
+      - FEATURE_MQTT_ENABLED=${FEATURE_MQTT_ENABLED:-true}
+      - FEATURE_NEXTCLOUD_ENABLED=${FEATURE_NEXTCLOUD_ENABLED:-true}
     depends_on:
       - postgres
+      - mqtt
     networks:
       - swissairdry-network
 
+  # PostgreSQL-Datenbank
   postgres:
-    image: postgres:15-alpine
-    container_name: swissairdry-postgres
+    image: postgres:14-alpine
     restart: unless-stopped
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - postgres_data:/var/lib/postgresql/data/
     environment:
-      - POSTGRES_USER=swissairdry
-      - POSTGRES_PASSWORD=swissairdry
-      - POSTGRES_DB=swissairdry
-    ports:
-      - "${POSTGRES_PORT:-5433}:5432"
+      - POSTGRES_USER=${POSTGRES_USER:-swissairdry}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-swissairdry}
+      - POSTGRES_DB=${POSTGRES_DB:-swissairdry}
     networks:
       - swissairdry-network
 
-  # MQTT Broker für IoT-Geräte
+  # MQTT-Broker (Mosquitto)
   mqtt:
     image: eclipse-mosquitto:2
-    container_name: swissairdry-mqtt
     restart: unless-stopped
     ports:
-      - "${MQTT_PORT:-1883}:1883"
-      - "${MQTT_WSS_PORT:-8083}:8083"
+      - "1883:1883"
+      - "9001:9001"
     volumes:
-      - ./config/mosquitto:/mosquitto/config
-      - mqtt_data:/mosquitto/data
-      - mqtt_log:/mosquitto/log
+      - ./mosquitto/config:/mosquitto/config
+      - ./mosquitto/data:/mosquitto/data
+      - ./mosquitto/log:/mosquitto/log
     networks:
       - swissairdry-network
+
+  # Optionale Nextcloud-Integration (auskommentiert, da extern)
+  # nextcloud:
+  #   image: nextcloud:latest
+  #   restart: unless-stopped
+  #   ports:
+  #     - "8080:80"
+  #   volumes:
+  #     - nextcloud_data:/var/www/html
+  #   environment:
+  #     - MYSQL_HOST=nextcloud-db
+  #     - MYSQL_DATABASE=nextcloud
+  #     - MYSQL_USER=nextcloud
+  #     - MYSQL_PASSWORD=nextcloud
+  #   depends_on:
+  #     - nextcloud-db
+  #   networks:
+  #     - swissairdry-network
+  #
+  # nextcloud-db:
+  #   image: mariadb:10
+  #   restart: unless-stopped
+  #   volumes:
+  #     - nextcloud_db:/var/lib/mysql
+  #   environment:
+  #     - MYSQL_ROOT_PASSWORD=root
+  #     - MYSQL_DATABASE=nextcloud
+  #     - MYSQL_USER=nextcloud
+  #     - MYSQL_PASSWORD=nextcloud
+  #   networks:
+  #     - swissairdry-network
 
 networks:
   swissairdry-network:
@@ -63,5 +99,8 @@ networks:
 
 volumes:
   postgres_data:
-  mqtt_data:
-  mqtt_log:
+  api_data:
+  api_static:
+  api_uploads:
+  # nextcloud_data:
+  # nextcloud_db:

@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="200" height="200" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Hintergrund (Kreis) -->
+  <circle cx="100" cy="100" r="95" fill="#0077B6" stroke="#FFFFFF" stroke-width="3"/>
+  
+  <!-- Wassertropfen-Symbol -->
+  <path d="M100 40C100 40, 60 100, 60 130C60 152 78 170 100 170C122 170 140 152 140 130C140 100, 100 40, 100 40Z" fill="#FFFFFF" stroke="#0077B6" stroke-width="2"/>
+  
+  <!-- Wellenlinien für Trocknungssymbol -->
+  <path d="M65 120C75 115, 85 125, 95 120C105 115, 115 125, 125 120C135 115, 145 125, 155 120" stroke="#0077B6" stroke-width="4" stroke-linecap="round"/>
+  
+  <path d="M65 135C75 130, 85 140, 95 135C105 130, 115 140, 125 135C135 130, 145 140, 155 135" stroke="#0077B6" stroke-width="4" stroke-linecap="round"/>
+  
+  <path d="M65 150C75 145, 85 155, 95 150C105 145, 115 155, 125 150C135 145, 145 155, 155 150" stroke="#0077B6" stroke-width="4" stroke-linecap="round"/>
+</svg>

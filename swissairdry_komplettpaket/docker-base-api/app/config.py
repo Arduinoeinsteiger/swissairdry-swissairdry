@@ -19,6 +19,15 @@ DEBUG = os.getenv("DEBUG", "False").lower() == "true"
 SECRET_KEY = os.getenv("SECRET_KEY", "supersecretkey")
 API_PORT = int(os.getenv("API_PORT", "5000"))
 
+# Port-Konfiguration
+API_HTTP_PORT = int(os.getenv("API_HTTP_PORT", "80"))
+API_HTTPS_PORT = int(os.getenv("API_HTTPS_PORT", "443"))
+MQTT_PORT = int(os.getenv("MQTT_PORT", "1883"))
+MQTT_WSS_PORT = int(os.getenv("MQTT_WSS_PORT", "8083"))
+ESP32_UPDATE_PORT = int(os.getenv("ESP32_UPDATE_PORT", "8070"))
+NEXTCLOUD_HTTP_PORT = int(os.getenv("NEXTCLOUD_HTTP_PORT", "8080"))
+NEXTCLOUD_HTTPS_PORT = int(os.getenv("NEXTCLOUD_HTTPS_PORT", "8443"))
+
 # Datenbank-Konfiguration
 DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://swissairdry:swissairdry@postgres:5432/swissairdry")
 

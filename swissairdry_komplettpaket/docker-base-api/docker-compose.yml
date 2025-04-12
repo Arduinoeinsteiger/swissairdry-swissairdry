@@ -1,0 +1,50 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:14-alpine
+    container_name: swissairdry-db
+    restart: always
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-swissairdry}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-swissairdry}
+      POSTGRES_DB: ${POSTGRES_DB:-swissairdry}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-swissairdry} -d ${POSTGRES_DB:-swissairdry}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - swissairdry-network
+
+  api:
+    build: .
+    container_name: swissairdry-api
+    restart: always
+    depends_on:
+      - postgres
+    environment:
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-swissairdry}:${POSTGRES_PASSWORD:-swissairdry}@postgres:5432/${POSTGRES_DB:-swissairdry}
+      - SECRET_KEY=${SECRET_KEY:-supersecretkey}
+      - DEBUG=${DEBUG:-False}
+      - NEXTCLOUD_URL=${NEXTCLOUD_URL:-http://nextcloud}
+      - API_PORT=${API_PORT:-5000}
+    ports:
+      - "${API_PORT:-5000}:5000"
+    volumes:
+      - ./app:/app
+      - uploads_data:/app/uploads
+      - logs_data:/app/logs
+    networks:
+      - swissairdry-network
+
+volumes:
+  postgres_data:
+  uploads_data:
+  logs_data:
+
+networks:
+  swissairdry-network:
+    driver: bridge

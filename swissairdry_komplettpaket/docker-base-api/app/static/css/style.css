@@ -1,0 +1,199 @@
+/* 
+  SwissAirDry API Server Styles
+  Version 1.0.0
+*/
+
+:root {
+  --primary-color: #0056b3;
+  --secondary-color: #5a9bd5;
+  --accent-color: #ff6b35;
+  --success-color: #28a745;
+  --warning-color: #ffc107;
+  --danger-color: #dc3545;
+  --light-color: #f8f9fa;
+  --dark-color: #212529;
+  --gray-color: #6c757d;
+  --border-color: #dee2e6;
+  --bg-color: #f5f7fa;
+  --card-bg: white;
+  --text-color: #333;
+  --font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: var(--font-family);
+  line-height: 1.6;
+  color: var(--text-color);
+  background-color: var(--bg-color);
+  padding: 20px;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+header {
+  text-align: center;
+  margin-bottom: 30px;
+  padding: 20px;
+  background-color: var(--primary-color);
+  color: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+header h1 {
+  margin-bottom: 5px;
+}
+
+.version {
+  font-size: 0.9rem;
+  opacity: 0.8;
+}
+
+main {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 20px;
+}
+
+.card {
+  background-color: var(--card-bg);
+  border-radius: 8px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.card h2 {
+  color: var(--primary-color);
+  margin-bottom: 15px;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 10px;
+}
+
+.api-status, .nextcloud-status {
+  margin-top: 20px;
+  padding: 15px;
+  background-color: var(--light-color);
+  border-radius: 4px;
+  border-left: 4px solid var(--gray-color);
+}
+
+.api-status h3, .nextcloud-status h3 {
+  margin-bottom: 10px;
+  color: var(--dark-color);
+}
+
+.status-pending {
+  color: var(--gray-color);
+}
+
+.status-ok {
+  color: var(--success-color);
+  border-left-color: var(--success-color);
+}
+
+.status-warning {
+  color: var(--warning-color);
+  border-left-color: var(--warning-color);
+}
+
+.status-error {
+  color: var(--danger-color);
+  border-left-color: var(--danger-color);
+}
+
+.links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 15px;
+}
+
+.button {
+  display: inline-block;
+  padding: 8px 16px;
+  background-color: var(--primary-color);
+  color: white;
+  text-decoration: none;
+  border-radius: 4px;
+  transition: all 0.3s ease;
+}
+
+.button:hover {
+  background-color: var(--secondary-color);
+  transform: translateY(-2px);
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.modules {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+  margin-top: 15px;
+}
+
+.module {
+  background-color: var(--light-color);
+  border-radius: 8px;
+  padding: 20px;
+  border: 1px solid var(--border-color);
+  transition: all 0.3s ease;
+}
+
+.module:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+}
+
+.module-icon {
+  font-size: 2rem;
+  margin-bottom: 10px;
+  color: var(--primary-color);
+}
+
+.module h3 {
+  margin-bottom: 10px;
+  color: var(--primary-color);
+}
+
+.module p {
+  margin-bottom: 15px;
+  color: var(--gray-color);
+}
+
+footer {
+  text-align: center;
+  margin-top: 30px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border-color);
+  color: var(--gray-color);
+}
+
+.icon {
+  display: inline-block;
+  margin-right: 5px;
+}
+
+@media (max-width: 768px) {
+  .modules {
+    grid-template-columns: 1fr;
+  }
+  
+  .links {
+    flex-direction: column;
+  }
+  
+  .button {
+    width: 100%;
+    text-align: center;
+  }
+}

@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SwissAirDry API</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>SwissAirDry API Server</h1>
+            <p class="version">Version 1.0.0</p>
+        </header>
+        
+        <main>
+            <div class="card">
+                <h2>Willkommen bei SwissAirDry API</h2>
+                <p>Der API-Server ist aktiv und bereit für die Integration mit Nextcloud.</p>
+                
+                <div class="api-status">
+                    <h3>API-Server Status</h3>
+                    <div id="status-indicator" class="status-pending">
+                        Prüfe Status...
+                    </div>
+                </div>
+                
+                <div class="nextcloud-status">
+                    <h3>Nextcloud-Verbindung</h3>
+                    <div id="nextcloud-indicator" class="status-pending">
+                        Prüfe Verbindung...
+                    </div>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h2>Dokumentation</h2>
+                <p>Hier finden Sie Links zur API-Dokumentation und zu weiteren Informationen:</p>
+                <div class="links">
+                    <a href="/docs" class="button">API-Dokumentation</a>
+                    <a href="/redoc" class="button">ReDoc-Dokumentation</a>
+                    <a href="/health" class="button">Server-Status</a>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h2>Module</h2>
+                <div class="modules">
+                    <div class="module">
+                        <div class="module-icon">📊</div>
+                        <h3>Admin-Bereich</h3>
+                        <p>Verwaltung von Benutzern, Gruppen und Berechtigungen</p>
+                        <a href="/admin" class="button">Öffnen</a>
+                    </div>
+                    <div class="module">
+                        <div class="module-icon">🏢</div>
+                        <h3>Kunden</h3>
+                        <p>Kundenverwaltung und -informationen</p>
+                        <a href="/api/customers" class="button">API</a>
+                    </div>
+                    <div class="module">
+                        <div class="module-icon">🔧</div>
+                        <h3>Geräte</h3>
+                        <p>Verwaltung der Trocknungsgeräte</p>
+                        <a href="/api/devices" class="button">API</a>
+                    </div>
+                    <div class="module">
+                        <div class="module-icon">📝</div>
+                        <h3>Aufträge</h3>
+                        <p>Verwaltung von Trocknungsaufträgen</p>
+                        <a href="/api/jobs" class="button">API</a>
+                    </div>
+                    <div class="module">
+                        <div class="module-icon">📈</div>
+                        <h3>Messungen</h3>
+                        <p>Feuchtigkeitsmessungen und Datenanalyse</p>
+                        <a href="/api/measurements" class="button">API</a>
+                    </div>
+                    <div class="module">
+                        <div class="module-icon">📊</div>
+                        <h3>Datenverarbeitung</h3>
+                        <p>CSV-Import und -Export</p>
+                        <a href="/api/data" class="button">API</a>
+                    </div>
+                </div>
+            </div>
+        </main>
+        
+        <footer>
+            <p>&copy; 2023-2025 Swiss Air Dry Team</p>
+            <p>Alle Rechte vorbehalten.</p>
+        </footer>
+    </div>
+    
+    <script>
+        // API-Status prüfen
+        async function checkApiStatus() {
+            const statusIndicator = document.getElementById('status-indicator');
+            
+            try {
+                const response = await fetch('/health');
+                const data = await response.json();
+                
+                if (data.status === 'ok') {
+                    statusIndicator.className = 'status-ok';
+                    statusIndicator.innerHTML = `<span class="icon">✓</span> API-Server läuft`;
+                } else {
+                    statusIndicator.className = 'status-error';
+                    statusIndicator.innerHTML = `<span class="icon">✗</span> Fehler: ${data.message}`;
+                }
+            } catch (err) {
+                statusIndicator.className = 'status-error';
+                statusIndicator.innerHTML = `<span class="icon">✗</span> Verbindungsfehler: ${err.message}`;
+            }
+        }
+        
+        // Nextcloud-Verbindung prüfen
+        async function checkNextcloudConnection() {
+            const nextcloudIndicator = document.getElementById('nextcloud-indicator');
+            
+            try {
+                const response = await fetch('/nextcloud-connect');
+                const data = await response.json();
+                
+                if (data.status === 'ok') {
+                    nextcloudIndicator.className = 'status-ok';
+                    nextcloudIndicator.innerHTML = `<span class="icon">✓</span> Verbunden mit: ${data.nextcloud_url}`;
+                } else {
+                    nextcloudIndicator.className = 'status-warning';
+                    nextcloudIndicator.innerHTML = `<span class="icon">⚠</span> ${data.message}`;
+                }
+            } catch (err) {
+                nextcloudIndicator.className = 'status-error';
+                nextcloudIndicator.innerHTML = `<span class="icon">✗</span> Verbindungsfehler: ${err.message}`;
+            }
+        }
+        
+        // Bei Seitenladung prüfen
+        document.addEventListener('DOMContentLoaded', () => {
+            checkApiStatus();
+            checkNextcloudConnection();
+        });
+    </script>
+</body>
+</html>

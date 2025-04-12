@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+
+{% block title %}SwissAirDry - Startseite{% endblock %}
+
+{% block content %}
+<div class="jumbotron">
+    <h1 class="display-4">Willkommen bei SwissAirDry</h1>
+    <p class="lead">Verwaltungssystem für Trocknungsgeräte und Aufträge</p>
+    <hr class="my-4">
+    <p>Dieses System hilft Ihnen bei der effizienten Verwaltung von Trocknungsgeräten, Kunden, Aufträgen und Messungen. Es bietet eine umfassende Lösung für Ihr Trocknungsgeschäft.</p>
+    
+    <div class="row mt-5">
+        <div class="col-md-4">
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="card-title"><i class="fas fa-tools me-2"></i>Geräte-Management</h5>
+                    <p class="card-text">Verwalten Sie Ihre Trocknungsgeräte, überwachen Sie deren Status und Wartung.</p>
+                    <a href="/api/devices" class="btn btn-primary">Geräte anzeigen</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="card-title"><i class="fas fa-tasks me-2"></i>Auftrags-Management</h5>
+                    <p class="card-text">Verfolgen Sie Trocknungsaufträge, Messungen und Kundendetails.</p>
+                    <a href="/api/jobs" class="btn btn-primary">Aufträge anzeigen</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="card-title"><i class="fas fa-chart-line me-2"></i>Auswertungen</h5>
+                    <p class="card-text">Erstellen Sie Berichte und Analysen zu Geräteauslastung und Aufträgen.</p>
+                    <a href="/api/dashboard/statistics" class="btn btn-primary">Statistiken anzeigen</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-3">
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="card-title"><i class="fas fa-network-wired me-2"></i>IoT-Verbindung</h5>
+                    <p class="card-text">Verbinden Sie Ihre Geräte über MQTT und überwachen Sie sie in Echtzeit.</p>
+                    <a href="/api/mqtt/status" class="btn btn-primary">MQTT-Status prüfen</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-body">
+                    <h5 class="card-title"><i class="fas fa-cloud me-2"></i>Nextcloud-Integration</h5>
+                    <p class="card-text">Speichern Sie Dokumente und Fotos in Ihrer Nextcloud-Instanz.</p>
+                    <a href="/nextcloud-connect" class="btn btn-primary">Nextcloud-Verbindung prüfen</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="d-grid gap-2 d-md-flex justify-content-md-center mt-4">
+        <a href="/admin" class="btn btn-lg btn-primary me-md-2"><i class="fas fa-cog me-2"></i>Administration</a>
+        <a href="/api/dashboard/modules" class="btn btn-lg btn-success"><i class="fas fa-th-large me-2"></i>Dashboard</a>
+    </div>
+</div>
+{% endblock %}

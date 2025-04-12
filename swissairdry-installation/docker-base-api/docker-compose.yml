@@ -1,0 +1,67 @@
+version: '3.8'
+
+services:
+  api:
+    build:
+      context: ./app
+      dockerfile: Dockerfile
+    container_name: swissairdry-api
+    restart: unless-stopped
+    ports:
+      - "${API_PORT:-5000}:5000"
+    volumes:
+      - ./app:/app
+      - ./data/uploads:/app/uploads
+      - ./data/logs:/app/logs
+    environment:
+      - DEBUG=${DEBUG:-False}
+      - SECRET_KEY=${SECRET_KEY:-supersecretkey}
+      - DATABASE_URL=${DATABASE_URL:-postgresql://swissairdry:swissairdry@postgres:5432/swissairdry}
+      - API_DOMAIN=${API_DOMAIN:-localhost:5000}
+      - BASE_URL=${BASE_URL:-http://localhost:5000}
+      - NEXTCLOUD_URL=${NEXTCLOUD_URL:-}
+      - NEXTCLOUD_USER=${NEXTCLOUD_USER:-}
+      - NEXTCLOUD_PASSWORD=${NEXTCLOUD_PASSWORD:-}
+    depends_on:
+      - postgres
+    networks:
+      - swissairdry-network
+
+  postgres:
+    image: postgres:15-alpine
+    container_name: swissairdry-postgres
+    restart: unless-stopped
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_USER=swissairdry
+      - POSTGRES_PASSWORD=swissairdry
+      - POSTGRES_DB=swissairdry
+    ports:
+      - "${POSTGRES_PORT:-5433}:5432"
+    networks:
+      - swissairdry-network
+
+  # MQTT Broker für IoT-Geräte
+  mqtt:
+    image: eclipse-mosquitto:2
+    container_name: swissairdry-mqtt
+    restart: unless-stopped
+    ports:
+      - "${MQTT_PORT:-1883}:1883"
+      - "${MQTT_WSS_PORT:-8083}:8083"
+    volumes:
+      - ./config/mosquitto:/mosquitto/config
+      - mqtt_data:/mosquitto/data
+      - mqtt_log:/mosquitto/log
+    networks:
+      - swissairdry-network
+
+networks:
+  swissairdry-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  mqtt_data:
+  mqtt_log:

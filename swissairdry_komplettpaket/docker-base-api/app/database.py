@@ -7,32 +7,30 @@ Modul zur Anbindung an die PostgreSQL-Datenbank.
 @copyright 2023-2025 Swiss Air Dry Team
 """
 
-import os
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
-from dotenv import load_dotenv
+from sqlalchemy.pool import QueuePool
 
-# Umgebungsvariablen laden
-load_dotenv()
+from config import DATABASE_URL
 
-# Datenbankverbindung konfigurieren
-DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://swissairdry:swissairdry@localhost:5432/swissairdry")
-
-# SQLAlchemy-Engine erstellen
+# SQLAlchemy-Engine mit Connection-Pool erstellen
 engine = create_engine(
     DATABASE_URL,
-    pool_pre_ping=True, # Prüft, ob die Verbindung noch aktiv ist
-    pool_recycle=300  # Verbindung nach 5 Minuten recyclen
+    pool_size=5,
+    max_overflow=10,
+    pool_timeout=30,
+    pool_recycle=1800,
+    pool_pre_ping=True,
+    poolclass=QueuePool
 )
 
-# SessionLocal-Klasse erstellen
+# SessionLocal-Klasse erstellen, die die Datenbanksitzungen erstellt
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
-# Base-Klasse für Modelle
+# Basis-Klasse für die Modelle erstellen
 Base = declarative_base()
 
-# Abhängigkeit für Datenbankverbindung in Endpunkten
 def get_db():
     """
     Erstellt eine neue Datenbankverbindung für jeden Request und schließt sie danach.

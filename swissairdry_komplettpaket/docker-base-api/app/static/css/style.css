@@ -4,6 +4,7 @@
 */
 
 :root {
+  /* Light Mode - Standard */
   --primary-color: #0056b3;
   --secondary-color: #5a9bd5;
   --accent-color: #ff6b35;
@@ -18,6 +19,28 @@
   --card-bg: white;
   --text-color: #333;
   --font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  --header-bg: #0056b3;
+  --header-text: white;
+  --module-bg: #f8f9fa;
+  --module-text: #333;
+}
+
+/* Dark mode Farbschema */
+[data-theme="dark"] {
+  --primary-color: #007acc;
+  --secondary-color: #3a8bd8;
+  --accent-color: #ff8e5a;
+  --bg-color: #121212;
+  --card-bg: #1e1e1e;
+  --text-color: #e0e0e0;
+  --border-color: #3a3a3a;
+  --light-color: #2c2c2c;
+  --dark-color: #e0e0e0;
+  --gray-color: #a0a0a0;
+  --header-bg: #007acc;
+  --header-text: #f0f0f0;
+  --module-bg: #2c2c2c;
+  --module-text: #e0e0e0;
 }
 
 * {
@@ -43,10 +66,11 @@ header {
   text-align: center;
   margin-bottom: 30px;
   padding: 20px;
-  background-color: var(--primary-color);
-  color: white;
+  background-color: var(--header-bg);
+  color: var(--header-text);
   border-radius: 8px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  position: relative;
 }
 
 header h1 {
@@ -142,7 +166,8 @@ main {
 }
 
 .module {
-  background-color: var(--light-color);
+  background-color: var(--module-bg);
+  color: var(--module-text);
   border-radius: 8px;
   padding: 20px;
   border: 1px solid var(--border-color);
@@ -183,7 +208,80 @@ footer {
   margin-right: 5px;
 }
 
+/* Dark mode toggle switch styles */
+.theme-switch-wrapper {
+  display: flex;
+  align-items: center;
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  z-index: 100;
+}
+
+.theme-switch {
+  display: inline-block;
+  height: 26px;
+  position: relative;
+  width: 50px;
+}
+
+.theme-switch input {
+  display: none;
+}
+
+.slider {
+  background-color: var(--light-color);
+  bottom: 0;
+  cursor: pointer;
+  left: 0;
+  position: absolute;
+  right: 0;
+  top: 0;
+  transition: .4s;
+  border: 1px solid var(--border-color);
+}
+
+.slider:before {
+  background-color: var(--card-bg);
+  bottom: 3px;
+  content: "";
+  height: 18px;
+  left: 4px;
+  position: absolute;
+  transition: .4s;
+  width: 18px;
+}
+
+input:checked + .slider {
+  background-color: var(--primary-color);
+}
+
+input:checked + .slider:before {
+  transform: translateX(23px);
+}
+
+.slider.round {
+  border-radius: 34px;
+}
+
+.slider.round:before {
+  border-radius: 50%;
+}
+
+.theme-icon {
+  margin-right: 10px;
+  font-size: 1.2rem;
+}
+
 @media (max-width: 768px) {
+  .theme-switch-wrapper {
+    position: relative;
+    top: auto;
+    right: auto;
+    justify-content: center;
+    margin: 10px 0;
+  }
+  
   .modules {
     grid-template-columns: 1fr;
   }

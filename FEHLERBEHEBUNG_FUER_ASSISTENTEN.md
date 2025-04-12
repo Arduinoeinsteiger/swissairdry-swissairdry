@@ -2,6 +2,9 @@
 
 Diese Anleitung hilft Ihnen als Assistent bei der Diagnose und Behebung häufiger Probleme, die bei der Installation oder dem Betrieb von SwissAirDry auftreten können.
 
+## Hinweis zu Aktualisierungen
+Diese Anleitung wurde zuletzt am 12.04.2025 aktualisiert und enthält nun auch Informationen zur Fehlerbehebung des Dark Mode.
+
 ## Inhaltsverzeichnis
 1. [Diagnosewerkzeuge](#diagnosewerkzeuge)
 2. [Allgemeine Docker-bezogene Probleme](#allgemeine-docker-bezogene-probleme)
@@ -13,6 +16,7 @@ Diese Anleitung hilft Ihnen als Assistent bei der Diagnose und Behebung häufige
 8. [MQTT und ESP32-bezogene Probleme](#mqtt-und-esp32-bezogene-probleme)
 9. [Aktualisierungsprobleme](#aktualisierungsprobleme)
 10. [Logging und Monitoring](#logging-und-monitoring)
+11. [Benutzeroberfläche und Dark Mode](#benutzeroberfläche-und-dark-mode)
 
 ## Diagnosewerkzeuge
 
@@ -348,6 +352,73 @@ docker-compose exec postgres psql -U swissairdry -d swissairdry
    ```
 
 3. Erwägen Sie ein Upgrade der Serverressourcen oder Optimierung der Datenbank
+
+## Benutzeroberfläche und Dark Mode
+
+### Problem: Dark Mode funktioniert nicht
+**Symptome:**
+- Toggle-Switch für den Dark Mode ist nicht sichtbar
+- Umschalten zwischen Hell- und Dunkelmodus funktioniert nicht
+- Design ändert sich nicht beim Klicken auf den Toggle-Switch
+
+**Lösungen:**
+1. Überprüfen Sie die CSS-Dateien:
+   ```bash
+   # Prüfen Sie, ob die CSS-Datei die Dark Mode Styles enthält
+   cat docker-base-api/app/static/css/style.css
+   ```
+
+2. Stellen Sie sicher, dass das JavaScript für den Dark Mode geladen wird:
+   ```bash
+   # Prüfen Sie die HTML-Datei auf Dark Mode JavaScript
+   cat docker-base-api/app/templates/index.html
+   ```
+
+3. Prüfen Sie die Browser-Konsole auf JavaScript-Fehler:
+   - Öffnen Sie die Entwicklertools im Browser (F12)
+   - Wechseln Sie zur Konsole und suchen Sie nach Fehlermeldungen
+
+### Problem: Dark Mode wird nicht gespeichert
+**Symptome:**
+- Nach Neuladen der Seite wird die Einstellung zurückgesetzt
+- LocalStorage speichert die Einstellung nicht
+
+**Lösungen:**
+1. Prüfen Sie, ob der LocalStorage funktioniert:
+   ```javascript
+   // In der Browser-Konsole ausführen
+   localStorage.setItem('test', 'value');
+   console.log(localStorage.getItem('test'));
+   ```
+
+2. Stellen Sie sicher, dass das Theme korrekt im LocalStorage gespeichert wird:
+   ```javascript
+   // In der Browser-Konsole ausführen
+   console.log(localStorage.getItem('theme'));
+   ```
+
+3. Überprüfen Sie den JavaScript-Code für die Theme-Speicherung in der index.html
+
+### Problem: Dark Mode sieht falsch aus
+**Symptome:**
+- Farben sind inkonsistent
+- Text ist schlecht lesbar im Dark Mode
+- Einige Elemente werden nicht korrekt umgestellt
+
+**Lösungen:**
+1. Überprüfen Sie die CSS-Variablen für den Dark Mode:
+   ```css
+   /* Diese sollten in der style.css definiert sein */
+   [data-theme="dark"] {
+     --bg-color: #121212;
+     --text-color: #e0e0e0;
+     /* ... weitere Variablen ... */
+   }
+   ```
+
+2. Stellen Sie sicher, dass alle UI-Elemente CSS-Variablen verwenden und nicht hart kodierte Farben
+
+3. Fügen Sie fehlende CSS-Variablen hinzu oder passen Sie bestehende an, um die Lesbarkeit zu verbessern
 
 ---
 

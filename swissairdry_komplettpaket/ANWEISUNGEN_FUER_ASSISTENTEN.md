@@ -9,6 +9,7 @@ SwissAirDry ist ein umfassendes System zur Verwaltung von Trocknungsgeräten und
 - **MQTT-Broker**: Für die Kommunikation mit ESP32-Geräten
 - **Postgresql-Datenbank**: Zur Speicherung aller Daten
 - **ESP32-Firmware**: Für die Steuerung der Trocknungsgeräte
+- **Benutzeroberfläche**: Responsive Design mit Dark Mode-Unterstützung
 
 ## Schritt 1: Umgebungsvariablen konfigurieren
 
@@ -80,6 +81,15 @@ Die genauen Ports können in der `.env.ports` Datei angepasst werden.
    - SwissAirDry_AUFTRAGSPROTOKOLL.csv
    - SwissAirDry_MESSPROTOKOLLWERTERFASSUNG.csv
    - SwissAirDry_GERAETESTANDORTWECHSELPROTOKOLL.csv
+
+## Schritt 8: Dark Mode konfigurieren
+
+Die Benutzeroberfläche unterstützt einen Dark Mode, der über einen Toggle-Switch aktiviert werden kann:
+
+1. Der Toggle-Switch befindet sich in der rechten oberen Ecke des Headers (zwischen Sonnen- und Mond-Icon)
+2. Der gewählte Modus wird automatisch im LocalStorage des Browsers gespeichert
+3. Die Einstellung bleibt auch nach einem Neustart der Anwendung erhalten
+4. Das Design passt sich automatisch an helle und dunkle Umgebungen an
 
 ## Häufig auftretende Probleme und Lösungen
 

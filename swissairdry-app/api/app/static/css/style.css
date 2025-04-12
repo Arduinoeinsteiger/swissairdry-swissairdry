@@ -1,0 +1,174 @@
+/**
+ * SwissAirDry - Hauptstil-Datei
+ *
+ * Diese Datei enthält alle benutzerdefinierten Stile für die SwissAirDry-Anwendung.
+ *
+ * @author Swiss Air Dry Team <info@swissairdry.com>
+ * @copyright 2023-2025 Swiss Air Dry Team
+ */
+
+:root {
+    /* Farbvariablen - Light Mode */
+    --primary-color: #0d6efd;
+    --secondary-color: #6c757d;
+    --background-color: #ffffff;
+    --text-color: #212529;
+    --card-bg: #ffffff;
+    --border-color: #dee2e6;
+    --hover-bg: #f8f9fa;
+    --form-bg: #f1f3f5;
+}
+
+/* Dark Mode Farbvariablen */
+.dark-mode {
+    --primary-color: #0d6efd;
+    --secondary-color: #adb5bd;
+    --background-color: #212529;
+    --text-color: #f8f9fa;
+    --card-bg: #343a40;
+    --border-color: #495057;
+    --hover-bg: #343a40;
+    --form-bg: #2b3035;
+}
+
+/* Grundlegende Stile */
+body {
+    background-color: var(--background-color);
+    color: var(--text-color);
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.card {
+    background-color: var(--card-bg);
+    border-color: var(--border-color);
+    transition: background-color 0.3s, border-color 0.3s;
+}
+
+.table {
+    color: var(--text-color);
+}
+
+.dark-mode .table {
+    color: var(--text-color);
+}
+
+.form-control, .form-select {
+    background-color: var(--form-bg);
+    border-color: var(--border-color);
+    color: var(--text-color);
+}
+
+.dark-mode .form-control:focus, .dark-mode .form-select:focus {
+    background-color: var(--form-bg);
+    color: var(--text-color);
+}
+
+/* Dark Mode für Footer */
+.dark-mode .footer {
+    background-color: var(--card-bg) !important;
+}
+
+.dark-mode .text-muted {
+    color: var(--secondary-color) !important;
+}
+
+/* Custom Styles */
+.navbar-brand {
+    font-weight: 600;
+}
+
+.btn-icon {
+    padding: 0.25rem 0.5rem;
+}
+
+.avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+    .table-responsive {
+        overflow-x: auto;
+    }
+}
+
+/* Animations */
+.fade-in {
+    animation: fadeIn 0.5s;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* Dark Mode Anpassungen für Bootstrap-Komponenten */
+.dark-mode .alert-info {
+    background-color: #0d315c;
+    color: #a8d1ff;
+    border-color: #0954a5;
+}
+
+.dark-mode .alert-success {
+    background-color: #0f5132;
+    color: #d1e7dd;
+    border-color: #23a15b;
+}
+
+.dark-mode .alert-warning {
+    background-color: #664d03;
+    color: #fff3cd;
+    border-color: #a98a0d;
+}
+
+.dark-mode .alert-danger {
+    background-color: #842029;
+    color: #f8d7da;
+    border-color: #c54753;
+}
+
+.dark-mode .bg-light {
+    background-color: var(--card-bg) !important;
+}
+
+.dark-mode .dropdown-menu {
+    background-color: var(--card-bg);
+    border-color: var(--border-color);
+}
+
+.dark-mode .dropdown-item {
+    color: var(--text-color);
+}
+
+.dark-mode .dropdown-item:hover, .dark-mode .dropdown-item:focus {
+    background-color: var(--hover-bg);
+    color: var(--text-color);
+}
+
+.dark-mode .dropdown-divider {
+    border-color: var(--border-color);
+}
+
+/* Formulare im Dark Mode */
+.dark-mode .form-control::placeholder {
+    color: #adb5bd;
+}
+
+.dark-mode .form-check-input {
+    background-color: var(--form-bg);
+    border-color: var(--border-color);
+}
+
+/* Tabellen im Dark Mode */
+.dark-mode .table-striped > tbody > tr:nth-of-type(odd) > * {
+    background-color: rgba(255, 255, 255, 0.05);
+    color: var(--text-color);
+}
+
+.dark-mode .table-hover > tbody > tr:hover > * {
+    background-color: rgba(255, 255, 255, 0.075);
+    color: var(--text-color);
+}

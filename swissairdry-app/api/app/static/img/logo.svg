@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="30" height="30" viewBox="0 0 30 30" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0d6efd" />
+      <stop offset="100%" stop-color="#0a58ca" />
+    </linearGradient>
+  </defs>
+  <circle cx="15" cy="15" r="14" fill="url(#gradient)" stroke="#ffffff" stroke-width="1" />
+  <g stroke="#ffffff" stroke-width="1.5" fill="none">
+    <!-- Stylized water droplet -->
+    <path d="M15,7 C15,7 10,13 10,16.5 C10,19.5 12.2,22 15,22 C17.8,22 20,19.5 20,16.5 C20,13 15,7 15,7 Z" />
+    <!-- Stylized air waves -->
+    <path d="M8,10 C8,10 10,8 12,10 C14,12 16,8 18,10 C20,12 22,10 22,10" />
+    <path d="M8,13 C8,13 10,11 12,13 C14,15 16,11 18,13 C20,15 22,13 22,13" />
+  </g>
+</svg>

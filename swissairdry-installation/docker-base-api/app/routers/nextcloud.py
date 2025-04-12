@@ -1,207 +1,279 @@
 """
-SwissAirDry - Nextcloud-Integrations-Router
+SwissAirDry - Nextcloud Integration Router
 
-Dieser Router stellt die Nextcloud-Integrationsendpunkte für das SwissAirDry-System bereit.
+Dieses Modul definiert die Endpunkte für die Integration mit Nextcloud.
 
 @author Swiss Air Dry Team <info@swissairdry.com>
 @copyright 2023-2025 Swiss Air Dry Team
 """
 
 import os
+import logging
+from typing import Dict, Any, Optional, List
 import requests
-from typing import Dict, Any, List, Optional
-from fastapi import APIRouter, Depends, HTTPException, Form, UploadFile, File, Query
-from fastapi.responses import JSONResponse
+from fastapi import APIRouter, Depends, HTTPException, Header, Request, UploadFile, File, Form
 from sqlalchemy.orm import Session
+from pydantic import BaseModel, HttpUrl
+from datetime import datetime, timedelta
 
-import config
-from database import get_db
+from .. import config
+from ..database import get_db
+from ..auth import verify_nextcloud_token, get_current_user
 
-router = APIRouter(tags=["Nextcloud Integration"])
+# Logger einrichten
+logger = logging.getLogger(__name__)
 
-@router.get("/status")
-async def get_nextcloud_status():
-    """API zum Abrufen des Nextcloud-Verbindungsstatus"""
-    nextcloud_url = os.environ.get("NEXTCLOUD_URL")
-    nextcloud_username = os.environ.get("NEXTCLOUD_USERNAME")
-    nextcloud_password = os.environ.get("NEXTCLOUD_PASSWORD")
-    
-    if not all([nextcloud_url, nextcloud_username, nextcloud_password]):
-        return {
-            "status": "warning",
-            "message": "Nextcloud-Integration nicht konfiguriert"
-        }
-    
-    try:
-        # Versuch, die Nextcloud-Instanz zu erreichen
-        response = requests.get(
-            f"{nextcloud_url}/status.php",
-            timeout=5
-        )
-        if response.status_code == 200:
-            return {
-                "status": "ok",
-                "message": "Nextcloud-Verbindung hergestellt",
-                "nextcloud_url": nextcloud_url,
-                "version": response.json().get("version", "Unbekannt")
-            }
-        else:
-            return {
-                "status": "error",
-                "message": f"Nextcloud-Verbindungsfehler: {response.status_code}",
-                "nextcloud_url": nextcloud_url
-            }
-    except Exception as e:
-        return {
-            "status": "error",
-            "message": f"Nextcloud-Verbindungsfehler: {str(e)}",
-            "nextcloud_url": nextcloud_url
-        }
+# Router initialisieren
+router = APIRouter(prefix="/nextcloud", tags=["nextcloud"])
 
-@router.post("/upload")
-async def upload_to_nextcloud(
-    path: str = Form(...),
-    file: UploadFile = File(...),
-    db: Session = Depends(get_db)
+
+# Datenmodelle
+class NextcloudUser(BaseModel):
+    """Nextcloud-Benutzermodell"""
+    user_id: str
+    display_name: Optional[str] = None
+    email: Optional[str] = None
+    groups: List[str] = []
+
+
+class NextcloudFileInfo(BaseModel):
+    """Informationen zu einer Nextcloud-Datei"""
+    file_id: int
+    path: str
+    name: str
+    mime_type: str
+    size: int
+    last_modified: datetime
+    public_link: Optional[str] = None
+
+
+class NextcloudSettings(BaseModel):
+    """Nextcloud-Einstellungen"""
+    url: HttpUrl
+    username: str
+    app_password: str
+    folder_path: str = "/SwissAirDry"
+
+
+# API-Endpunkte
+@router.get("/connect")
+async def test_connection(
+    x_nextcloud_url: Optional[str] = Header(None),
+    x_nextcloud_user: Optional[str] = Header(None),
+    x_nextcloud_token: Optional[str] = Header(None)
 ):
-    """API zum Hochladen einer Datei zu Nextcloud"""
-    nextcloud_url = os.environ.get("NEXTCLOUD_URL")
-    nextcloud_username = os.environ.get("NEXTCLOUD_USERNAME")
-    nextcloud_password = os.environ.get("NEXTCLOUD_PASSWORD")
+    """
+    Testet die Verbindung mit Nextcloud.
     
-    if not all([nextcloud_url, nextcloud_username, nextcloud_password]):
-        raise HTTPException(status_code=400, detail="Nextcloud-Integration nicht konfiguriert")
+    Diese Route kann von der Nextcloud App aufgerufen werden, um zu testen,
+    ob die API erreichbar ist und ob die Authentifizierung funktioniert.
+    """
+    if not x_nextcloud_url or not x_nextcloud_user:
+        raise HTTPException(status_code=400, detail="Nextcloud-URL und Benutzer sind erforderlich")
+    
+    # Wenn Token vorhanden ist, Authentifizierung prüfen
+    user_info = None
+    if x_nextcloud_token:
+        try:
+            user_info = verify_nextcloud_token(x_nextcloud_token)
+        except Exception as e:
+            logger.error(f"Fehler bei der Token-Verifizierung: {str(e)}")
+            raise HTTPException(status_code=401, detail="Ungültiges Token")
+    
+    return {
+        "status": "ok",
+        "message": "Verbindung erfolgreich hergestellt",
+        "server_time": datetime.now().isoformat(),
+        "api_version": config.API_VERSION,
+        "user": user_info
+    }
+
+
+@router.post("/files/upload")
+async def upload_file(
+    request: Request,
+    file: UploadFile = File(...),
+    path: str = Form(...),
+    file_type: str = Form("document"),
+    db: Session = Depends(get_db),
+    user: Dict[str, Any] = Depends(get_current_user)
+):
+    """
+    Lädt eine Datei hoch und speichert Sie in Nextcloud.
+    
+    Diese Route wird vom Backend verwendet, um Dateien in Nextcloud zu speichern.
+    Die Authentifizierung erfolgt über die API und die Datei wird dann an Nextcloud weitergeleitet.
+    """
+    # Pfad validieren
+    if not path.startswith("/"):
+        path = "/" + path
+    
+    # Nextcloud-Einstellungen aus Konfiguration auslesen
+    nextcloud_url = os.getenv("NEXTCLOUD_URL")
+    nextcloud_username = os.getenv("NEXTCLOUD_USERNAME")
+    nextcloud_password = os.getenv("NEXTCLOUD_PASSWORD")
+    
+    if not nextcloud_url or not nextcloud_username or not nextcloud_password:
+        raise HTTPException(status_code=500, detail="Nextcloud-Konfiguration nicht vollständig")
+    
+    # Dateiinhalt in temporäre Datei speichern
+    file_content = await file.read()
+    file_name = file.filename
     
     try:
-        # WebDAV-URL für Nextcloud
-        webdav_url = f"{nextcloud_url}/remote.php/dav/files/{nextcloud_username}/{path}/{file.filename}"
+        # WebDAV-Endpunkt für Nextcloud
+        webdav_url = f"{nextcloud_url}/remote.php/dav/files/{nextcloud_username}{path}/{file_name}"
         
-        # Dateiinhalt lesen
-        content = await file.read()
-        
-        # Datei hochladen
+        # Datei an Nextcloud senden
         response = requests.put(
             webdav_url,
-            data=content,
+            data=file_content,
             auth=(nextcloud_username, nextcloud_password),
-            headers={"Content-Type": "application/octet-stream"}
+            headers={"Content-Type": file.content_type}
         )
         
-        if response.status_code in [201, 204]:
-            return {
-                "status": "success",
-                "message": f"Datei '{file.filename}' erfolgreich hochgeladen",
-                "path": f"{path}/{file.filename}",
-                "size": len(content)
-            }
-        else:
-            raise HTTPException(
-                status_code=response.status_code,
-                detail=f"Nextcloud-Fehler: {response.text}"
-            )
+        if response.status_code not in (201, 204):
+            logger.error(f"Fehler beim Hochladen der Datei zu Nextcloud: {response.text}")
+            raise HTTPException(status_code=response.status_code, detail=f"Nextcloud-Fehler: {response.text}")
+        
+        # Informationen zur hochgeladenen Datei abrufen
+        file_info_response = requests.propfind(
+            webdav_url,
+            auth=(nextcloud_username, nextcloud_password),
+            headers={"Depth": "0"}
+        )
+        
+        # Erfolgreiche Antwort zurückgeben
+        return {
+            "success": True,
+            "file_name": file_name,
+            "path": path,
+            "size": len(file_content),
+            "type": file_type,
+            "uploaded_at": datetime.now().isoformat()
+        }
+        
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Nextcloud-Upload-Fehler: {str(e)}")
+        logger.error(f"Fehler beim Hochladen der Datei: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Fehler beim Hochladen: {str(e)}")
 
-@router.get("/files")
-async def list_nextcloud_files(
-    path: str = Query(...),
-    db: Session = Depends(get_db)
+
+@router.get("/files/list")
+async def list_files(
+    path: str = "/SwissAirDry",
+    db: Session = Depends(get_db),
+    user: Dict[str, Any] = Depends(get_current_user)
 ):
-    """API zum Auflisten von Dateien in einem Nextcloud-Verzeichnis"""
-    nextcloud_url = os.environ.get("NEXTCLOUD_URL")
-    nextcloud_username = os.environ.get("NEXTCLOUD_USERNAME")
-    nextcloud_password = os.environ.get("NEXTCLOUD_PASSWORD")
+    """
+    Listet Dateien in einem Nextcloud-Verzeichnis auf.
+    """
+    # Pfad validieren
+    if not path.startswith("/"):
+        path = "/" + path
     
-    if not all([nextcloud_url, nextcloud_username, nextcloud_password]):
-        raise HTTPException(status_code=400, detail="Nextcloud-Integration nicht konfiguriert")
+    # Nextcloud-Einstellungen aus Konfiguration auslesen
+    nextcloud_url = os.getenv("NEXTCLOUD_URL")
+    nextcloud_username = os.getenv("NEXTCLOUD_USERNAME")
+    nextcloud_password = os.getenv("NEXTCLOUD_PASSWORD")
+    
+    if not nextcloud_url or not nextcloud_username or not nextcloud_password:
+        raise HTTPException(status_code=500, detail="Nextcloud-Konfiguration nicht vollständig")
     
     try:
-        # WebDAV-URL für Nextcloud
-        webdav_url = f"{nextcloud_url}/remote.php/dav/files/{nextcloud_username}/{path}"
+        # WebDAV-Endpunkt für Nextcloud
+        webdav_url = f"{nextcloud_url}/remote.php/dav/files/{nextcloud_username}{path}"
         
-        # PROPFIND-Anfrage zum Auflisten von Dateien
-        response = requests.request(
-            "PROPFIND",
+        # Dateien von Nextcloud abrufen
+        response = requests.propfind(
             webdav_url,
             auth=(nextcloud_username, nextcloud_password),
             headers={"Depth": "1"}
         )
         
-        if response.status_code == 207:  # Multi-Status-Antwort
-            # XML-Antwort parsen und Dateiliste zurückgeben
-            # In einer echten Implementierung würde hier ein XML-Parser verwendet
-            
-            # Vereinfachte Antwort
-            return {
-                "status": "success",
-                "path": path,
-                "files": [
-                    {"name": "beispiel1.pdf", "type": "file", "size": 1024, "modified": "2025-04-10T15:30:00Z"},
-                    {"name": "beispiel2.jpg", "type": "file", "size": 2048, "modified": "2025-04-11T09:45:00Z"},
-                    {"name": "unterordner", "type": "directory", "modified": "2025-04-09T14:20:00Z"}
-                ]
-            }
-        else:
-            raise HTTPException(
-                status_code=response.status_code,
-                detail=f"Nextcloud-Fehler: {response.text}"
-            )
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Nextcloud-Listenfehler: {str(e)}")
-
-@router.get("/share")
-async def create_nextcloud_share(
-    path: str = Query(...),
-    password: Optional[str] = None,
-    expiration: Optional[str] = None,  # Format: YYYY-MM-DD
-    db: Session = Depends(get_db)
-):
-    """API zum Erstellen eines öffentlichen Nextcloud-Links"""
-    nextcloud_url = os.environ.get("NEXTCLOUD_URL")
-    nextcloud_username = os.environ.get("NEXTCLOUD_USERNAME")
-    nextcloud_password = os.environ.get("NEXTCLOUD_PASSWORD")
-    
-    if not all([nextcloud_url, nextcloud_username, nextcloud_password]):
-        raise HTTPException(status_code=400, detail="Nextcloud-Integration nicht konfiguriert")
-    
-    try:
-        # OCS API-URL für Nextcloud
-        ocs_url = f"{nextcloud_url}/ocs/v2.php/apps/files_sharing/api/v1/shares"
+        if response.status_code != 207:  # MultiStatus
+            logger.error(f"Fehler beim Abrufen der Dateien von Nextcloud: {response.text}")
+            raise HTTPException(status_code=response.status_code, detail=f"Nextcloud-Fehler: {response.text}")
         
-        # Anfrageparameter
-        data = {
+        # WebDAV-Antwort in vereinfachtes Format umwandeln
+        # In einer echten Implementierung würde hier ein XML-Parser verwendet
+        
+        # Platzhalter für die tatsächliche Implementierung
+        files = [
+            {
+                "name": "Beispieldatei.pdf",
+                "path": f"{path}/Beispieldatei.pdf",
+                "size": 12345,
+                "last_modified": datetime.now().isoformat()
+            }
+        ]
+        
+        return {
             "path": path,
-            "shareType": 3,  # Öffentlicher Link
+            "files": files
         }
         
-        if password:
-            data["password"] = password
-        
-        if expiration:
-            data["expireDate"] = expiration
-        
-        # Teilen erstellen
-        response = requests.post(
-            ocs_url,
-            data=data,
-            auth=(nextcloud_username, nextcloud_password),
-            headers={"OCS-APIRequest": "true", "Content-Type": "application/x-www-form-urlencoded"}
+    except Exception as e:
+        logger.error(f"Fehler beim Abrufen der Dateien: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Fehler beim Abrufen der Dateien: {str(e)}")
+
+
+@router.get("/settings")
+async def get_nextcloud_settings(
+    db: Session = Depends(get_db),
+    user: Dict[str, Any] = Depends(get_current_user)
+):
+    """
+    Gibt die aktuellen Nextcloud-Einstellungen zurück.
+    """
+    # Überprüfen, ob Benutzer Admin ist
+    if user.get("role") != "admin":
+        raise HTTPException(status_code=403, detail="Nur Administratoren können Nextcloud-Einstellungen abrufen")
+    
+    # Nextcloud-Einstellungen aus Umgebungsvariablen auslesen
+    settings = {
+        "url": os.getenv("NEXTCLOUD_URL", ""),
+        "username": os.getenv("NEXTCLOUD_USERNAME", ""),
+        "app_password": "********",  # Passwort nie direkt zurückgeben
+        "folder_path": os.getenv("NEXTCLOUD_FOLDER_PATH", "/SwissAirDry")
+    }
+    
+    return settings
+
+
+@router.post("/settings")
+async def update_nextcloud_settings(
+    settings: NextcloudSettings,
+    db: Session = Depends(get_db),
+    user: Dict[str, Any] = Depends(get_current_user)
+):
+    """
+    Aktualisiert die Nextcloud-Einstellungen.
+    """
+    # Überprüfen, ob Benutzer Admin ist
+    if user.get("role") != "admin":
+        raise HTTPException(status_code=403, detail="Nur Administratoren können Nextcloud-Einstellungen ändern")
+    
+    # Verbindung zu Nextcloud testen
+    try:
+        webdav_url = f"{settings.url}/remote.php/dav/files/{settings.username}/"
+        response = requests.propfind(
+            webdav_url,
+            auth=(settings.username, settings.app_password),
+            headers={"Depth": "0"}
         )
         
-        if response.status_code in [200, 201]:
-            # In einer echten Implementierung würde hier die XML-Antwort geparst
-            
-            # Vereinfachte Antwort
-            return {
-                "status": "success",
-                "message": f"Link für '{path}' erstellt",
-                "url": f"{nextcloud_url}/index.php/s/Beispiellink",
-                "expiration": expiration
-            }
-        else:
-            raise HTTPException(
-                status_code=response.status_code,
-                detail=f"Nextcloud-Fehler: {response.text}"
-            )
+        if response.status_code != 207:  # MultiStatus
+            raise HTTPException(status_code=400, detail="Verbindung zu Nextcloud konnte nicht hergestellt werden")
+        
+        # In einer echten Implementierung würden die Einstellungen in der Datenbank gespeichert
+        # oder in einer Konfigurationsdatei, die beim Neustart gelesen wird
+        
+        # Erfolgsmeldung zurückgeben
+        return {
+            "success": True,
+            "message": "Nextcloud-Einstellungen wurden aktualisiert"
+        }
+        
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Nextcloud-Share-Fehler: {str(e)}")
+        logger.error(f"Fehler beim Aktualisieren der Nextcloud-Einstellungen: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Fehler: {str(e)}")

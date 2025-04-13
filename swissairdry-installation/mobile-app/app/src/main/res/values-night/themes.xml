@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Base application theme for dark mode. -->
+    <style name="Theme.SwissAirDry" parent="Theme.MaterialComponents.DayNight.DarkActionBar">
+        <!-- Primary brand color. -->
+        <item name="colorPrimary">@color/primary_light</item>
+        <item name="colorPrimaryVariant">@color/primary</item>
+        <item name="colorOnPrimary">@color/black</item>
+        <!-- Secondary brand color. -->
+        <item name="colorSecondary">@color/accent_light</item>
+        <item name="colorSecondaryVariant">@color/accent</item>
+        <item name="colorOnSecondary">@color/black</item>
+        <!-- Status bar color. -->
+        <item name="android:statusBarColor">@color/dark_background</item>
+        <!-- Customize your theme here. -->
+        <item name="android:fontFamily">sans-serif</item>
+        <item name="fontFamily">sans-serif</item>
+        <item name="android:textColorPrimary">@color/white</item>
+        <item name="android:textColorSecondary">@color/light_gray</item>
+        <item name="android:windowBackground">@color/dark_background</item>
+        <item name="materialCardViewStyle">@style/Widget.SwissAirDry.CardView.Dark</item>
+        <item name="toolbarStyle">@style/Widget.SwissAirDry.Toolbar.Dark</item>
+    </style>
+
+    <!-- Custom widget styles for dark mode -->
+    <style name="Widget.SwissAirDry.CardView.Dark" parent="Widget.MaterialComponents.CardView">
+        <item name="cardElevation">2dp</item>
+        <item name="cardCornerRadius">8dp</item>
+        <item name="contentPadding">16dp</item>
+        <item name="cardBackgroundColor">@color/dark_surface</item>
+    </style>
+
+    <style name="Widget.SwissAirDry.Toolbar.Dark" parent="Widget.MaterialComponents.Toolbar">
+        <item name="android:background">@color/dark_surface</item>
+        <item name="titleTextColor">@color/white</item>
+        <item name="subtitleTextColor">@color/light_gray</item>
+    </style>
+
+    <style name="Widget.SwissAirDry.Button.Dark" parent="Widget.MaterialComponents.Button">
+        <item name="android:textColor">@color/black</item>
+        <item name="backgroundTint">@color/primary_light</item>
+        <item name="cornerRadius">8dp</item>
+    </style>
+
+    <style name="Widget.SwissAirDry.Button.Secondary.Dark" parent="Widget.MaterialComponents.Button.OutlinedButton">
+        <item name="android:textColor">@color/primary_light</item>
+        <item name="strokeColor">@color/primary_light</item>
+        <item name="cornerRadius">8dp</item>
+    </style>
+
+    <style name="Widget.SwissAirDry.Button.TextButton.Dark" parent="Widget.MaterialComponents.Button.TextButton">
+        <item name="android:textColor">@color/primary_light</item>
+        <item name="rippleColor">@color/primary</item>
+    </style>
+
+    <style name="Widget.SwissAirDry.TextField.Dark" parent="Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+        <item name="boxStrokeColor">@color/primary_light</item>
+        <item name="hintTextColor">@color/primary_light</item>
+    </style>
+</resources>

@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Grundfarben -->
+    <color name="primary">#006699</color>
+    <color name="primary_dark">#004466</color>
+    <color name="primary_light">#4D99CC</color>
+    <color name="accent">#FF9800</color>
+    <color name="accent_dark">#F57C00</color>
+    <color name="accent_light">#FFB74D</color>
+    
+    <!-- Andere Farben -->
+    <color name="white">#FFFFFF</color>
+    <color name="black">#000000</color>
+    <color name="light_gray">#F5F5F5</color>
+    <color name="gray">#9E9E9E</color>
+    <color name="dark_gray">#616161</color>
+    
+    <!-- Status-Farben -->
+    <color name="success">#4CAF50</color>
+    <color name="warning">#FFEB3B</color>
+    <color name="error">#F44336</color>
+    <color name="info">#2196F3</color>
+    
+    <!-- Text-Farben -->
+    <color name="text_primary">#212121</color>
+    <color name="text_secondary">#757575</color>
+    <color name="text_disabled">#9E9E9E</color>
+    <color name="text_hint">#BDBDBD</color>
+    
+    <!-- Dunkler Modus -->
+    <color name="dark_background">#121212</color>
+    <color name="dark_surface">#1E1E1E</color>
+    <color name="dark_error">#CF6679</color>
+    <color name="dark_on_background">#FFFFFF</color>
+    <color name="dark_on_surface">#FFFFFF</color>
+    <color name="dark_on_primary">#000000</color>
+    <color name="dark_on_error">#000000</color>
+    
+    <!-- Chart-Farben -->
+    <color name="chart_line_temp">#E57373</color>
+    <color name="chart_line_humidity">#64B5F6</color>
+    <color name="chart_line_pressure">#AED581</color>
+    <color name="chart_line_energy">#FFD54F</color>
+</resources>

@@ -1,0 +1,136 @@
+Ich verstehe - Sie möchten eine saubere Version in Replit vorbereiten. Dafür müssen wir die Gradle-Konfiguration für Replit anpassen. Hier sind die notwendigen Änderungen:
+
+1. Zuerst die `replit.nix` Datei:
+
+```nur-text:replit.nix
+{ pkgs }: {
+    deps = [
+        pkgs.graalvm17-ce
+        pkgs.gradle
+        pkgs.maven
+        pkgs.replitPackages.jdt-language-server
+        pkgs.replitPackages.java-debug
+    ];
+}
+```
+2. Die `.replit` Datei für die Run-Konfiguration:
+
+```nur-text:.replit
+run = "./gradlew build"
+hidden = ["**/*.class"]
+
+[packager]
+language = "java"
+
+[packager.features]
+packageSearch = true
+
+[languages.java]
+pattern = "**/*.java"
+
+[languages.java.languageServer]
+start = ["jdt-language-server"]
+
+[unitTest]
+language = "java"
+
+[nix]
+channel = "stable-22_11"
+
+[debugger]
+support = true
+
+[debugger.compile]
+command = "./gradlew build"
+
+[debugger.interactive]
+transport = "localhost:0"
+connectTimeout = 60
+startCommand = "java-debug"
+```
+3. Eine `.gitignore` Datei für sauberes Versionieren:
+
+```ignore:.gitignore
+*.iml
+.gradle
+/local.properties
+/.idea
+.DS_Store
+/build
+/captures
+.externalNativeBuild
+.cxx
+local.properties
+.idea/
+.gradle/
+build/
+app/build/
+*.apk
+*.ap_
+*.aab
+*.dex
+*.class
+bin/
+gen/
+out/
+.navigation/
+captures/
+.settings/
+.loadpath
+.project
+*.log
+```
+4. Eine README.md für die Dokumentation:
+
+```markdown:README.md
+# SwissAirDryAppSystem
+
+Ein Android-Projekt für das SwissAirDry System.
+
+## Entwicklungsumgebung
+
+- Java 17 (GraalVM CE)
+- Gradle 7.4.2
+- Android Gradle Plugin 7.4.2
+- Kotlin 1.9.0
+
+## Setup in Replit
+
+1. Fork das Projekt
+2. Replit wird automatisch die notwendigen Abhängigkeiten installieren
+3. Warte bis der Language Server vollständig geladen ist
+4. Führe `./gradlew build` aus, um das Projekt zu bauen
+
+## Projektstruktur
+
+- `/app` - Hauptmodul der Android-Anwendung
+- `/gradle` - Gradle-Wrapper und Konfigurationsdateien
+
+## Build
+
+```bash
+./gradlew build
+```
+
+## Tests
+
+```bash
+./gradlew test
+```
+
+## Lizenz
+
+Proprietär - Alle Rechte vorbehalten
+```
+Diese Konfiguration:
+1. Nutzt Java 17 mit GraalVM für bessere Performance
+2. Setzt die korrekten Gradle-Versionen
+3. Ignoriert unnötige Dateien
+4. Bietet eine klare Dokumentation
+
+Wenn Sie das Projekt in Replit importieren:
+1. Alle Abhängigkeiten werden automatisch installiert
+2. Die Entwicklungsumgebung wird korrekt konfiguriert
+3. Der Build-Prozess ist automatisiert
+
+Möchten Sie, dass ich noch weitere Anpassungen vornehme oder haben Sie Fragen zu bestimmten Teilen der Konfiguration?

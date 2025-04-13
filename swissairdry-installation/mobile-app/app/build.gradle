@@ -1,9 +1,10 @@
 plugins {
     id 'com.android.application'
-    id 'kotlin-android'
+    id 'org.jetbrains.kotlin.android'
     id 'kotlin-kapt'
-    id 'dagger.hilt.android.plugin'
+    id 'kotlin-parcelize'
     id 'androidx.navigation.safeargs.kotlin'
+    id 'dagger.hilt.android.plugin'
 }
 
 android {
@@ -19,23 +20,24 @@ android {
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
+        // API URLs
         buildConfigField "String", "API_BASE_URL", "\"https://api.swissairdry.com/\""
+        buildConfigField "String", "MQTT_BROKER_URL", "\"ssl://mqtt.swissairdry.com:8883\""
     }
 
     buildTypes {
         debug {
-            buildConfigField "String", "API_BASE_URL", "\"http://10.0.2.2:5000/\""
+            buildConfigField "String", "API_BASE_URL", "\"http://192.168.0.100:5000/\""
+            buildConfigField "String", "MQTT_BROKER_URL", "\"tcp://192.168.0.100:1883\""
+            debuggable true
             minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
         release {
             minifyEnabled true
+            shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
-    }
-
-    buildFeatures {
-        viewBinding true
-        dataBinding true
     }
 
     compileOptions {
@@ -46,62 +48,78 @@ android {
     kotlinOptions {
         jvmTarget = '1.8'
     }
+
+    buildFeatures {
+        viewBinding true
+    }
 }
 
 dependencies {
-    implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
-    implementation 'androidx.core:core-ktx:1.9.0'
-    implementation 'androidx.appcompat:appcompat:1.6.1'
-    implementation 'com.google.android.material:material:1.8.0'
-    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
-    implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.6.0'
-    implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.0'
-    implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.6.0'
-    
-    // Navigation Component
+    // Core Android
+    implementation "androidx.core:core-ktx:1.9.0"
+    implementation "androidx.appcompat:appcompat:1.6.0"
+    implementation "com.google.android.material:material:1.8.0"
+    implementation "androidx.constraintlayout:constraintlayout:2.1.4"
+    implementation "androidx.swiperefreshlayout:swiperefreshlayout:1.1.0"
+    implementation "androidx.preference:preference-ktx:1.2.0"
+
+    // Architecture Components
+    implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version"
+    implementation "androidx.lifecycle:lifecycle-livedata-ktx:$lifecycle_version"
+    implementation "androidx.lifecycle:lifecycle-runtime-ktx:$lifecycle_version"
+    implementation "androidx.datastore:datastore-preferences:$datastore_version"
+
+    // Navigation
     implementation "androidx.navigation:navigation-fragment-ktx:$nav_version"
     implementation "androidx.navigation:navigation-ui-ktx:$nav_version"
-    
-    // Retrofit für API-Anfragen
-    implementation 'com.squareup.retrofit2:retrofit:2.9.0'
-    implementation 'com.squareup.retrofit2:converter-gson:2.9.0'
-    implementation 'com.squareup.okhttp3:okhttp:4.10.0'
-    implementation 'com.squareup.okhttp3:logging-interceptor:4.10.0'
-    
-    // Coroutines für asynchrone Programmierung
-    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4'
-    
-    // Hilt für Dependency Injection
+
+    // Room Database
+    implementation "androidx.room:room-runtime:$room_version"
+    implementation "androidx.room:room-ktx:$room_version"
+    kapt "androidx.room:room-compiler:$room_version"
+
+    // Hilt for Dependency Injection
     implementation "com.google.dagger:hilt-android:$hilt_version"
     kapt "com.google.dagger:hilt-compiler:$hilt_version"
-    
-    // Glide für Bildanzeige
-    implementation 'com.github.bumptech.glide:glide:4.15.0'
-    kapt 'com.github.bumptech.glide:compiler:4.15.0'
-    
-    // Room für lokale Datenbank
-    implementation 'androidx.room:room-runtime:2.5.0'
-    implementation 'androidx.room:room-ktx:2.5.0'
-    kapt 'androidx.room:room-compiler:2.5.0'
-    
-    // Preferences DataStore
-    implementation 'androidx.datastore:datastore-preferences:1.0.0'
-    
-    // Paho MQTT Client für IoT-Kommunikation
-    implementation 'org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.2.5'
-    implementation 'org.eclipse.paho:org.eclipse.paho.android.service:1.1.1'
-    
-    // MPAndroidChart für Datenvisualisierung
-    implementation 'com.github.PhilJay:MPAndroidChart:v3.1.0'
-    
-    // QR/Barcode Scanning
-    implementation 'com.journeyapps:zxing-android-embedded:4.3.0'
-    
-    // Biometrische Authentifizierung
-    implementation 'androidx.biometric:biometric:1.2.0-alpha05'
-    
-    // Tests
+
+    // Coroutines
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutines_version"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutines_version"
+
+    // Retrofit & OkHttp for networking
+    implementation "com.squareup.retrofit2:retrofit:$retrofit_version"
+    implementation "com.squareup.retrofit2:converter-gson:$retrofit_version"
+    implementation "com.squareup.okhttp3:okhttp:$okhttp_version"
+    implementation "com.squareup.okhttp3:logging-interceptor:$okhttp_version"
+
+    // Glide for image loading
+    implementation "com.github.bumptech.glide:glide:$glide_version"
+    kapt "com.github.bumptech.glide:compiler:$glide_version"
+
+    // MQTT for IoT communication
+    implementation "org.eclipse.paho:org.eclipse.paho.client.mqttv3:$mqtt_version"
+    implementation "org.eclipse.paho:org.eclipse.paho.android.service:$mqtt_version"
+
+    // ZXing for barcode scanning
+    implementation "com.journeyapps:zxing-android-embedded:$zxing_version"
+
+    // MPAndroidChart for data visualization
+    implementation "com.github.PhilJay:MPAndroidChart:$mpandroidchart_version"
+
+    // Timber for logging
+    implementation 'com.jakewharton.timber:timber:5.0.1'
+
+    // Test dependencies
     testImplementation 'junit:junit:4.13.2'
+    testImplementation 'org.mockito:mockito-core:4.0.0'
+    testImplementation 'org.mockito.kotlin:mockito-kotlin:4.0.0'
+    testImplementation "androidx.arch.core:core-testing:2.1.0"
+    testImplementation "org.jetbrains.kotlinx:kotlinx-coroutines-test:$coroutines_version"
+
+    // Android test dependencies
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
+    androidTestImplementation "androidx.navigation:navigation-testing:$nav_version"
+    androidTestImplementation "com.google.dagger:hilt-android-testing:$hilt_version"
+    kaptAndroidTest "com.google.dagger:hilt-compiler:$hilt_version"
 }

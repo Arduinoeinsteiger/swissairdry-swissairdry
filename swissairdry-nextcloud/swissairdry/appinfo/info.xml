@@ -1,0 +1,45 @@
+<?xml version="1.0"?>
+<info xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://apps.nextcloud.com/schema/apps/info.xsd">
+    <id>swissairdry</id>
+    <name>SwissAirDry</name>
+    <summary>Verwaltungssystem für Trocknungsgeräte und Aufträge</summary>
+    <description>
+        <![CDATA[SwissAirDry ist ein umfassendes System zur Verwaltung von Trocknungsgeräten und Aufträgen für Bautrocknungs- und Sanierungsunternehmen.
+
+**Hauptfunktionen:**
+
+* Verwaltung von Geräten und deren Standorten
+* Auftragsverwaltung und Zustandsüberwachung
+* Messungsdatenerfassung und -visualisierung
+* Integration mit IoT-Geräten über MQTT
+* Berichtswesen und Dokumentation
+* Kundenverwaltung und Rechnungsstellung
+
+Diese App integriert die SwissAirDry-Funktionalität nahtlos in Ihre Nextcloud-Umgebung und ermöglicht Ihnen, Ihre Trocknungsprojekte effizient zu verwalten.]]>
+    </description>
+    <version>1.0.0</version>
+    <licence>agpl</licence>
+    <author mail="info@swissairdry.com">Swiss Air Dry Team</author>
+    <namespace>SwissAirDry</namespace>
+    <category>tools</category>
+    <category>office</category>
+    <category>organization</category>
+    <bugs>https://github.com/swissairdry/nextcloud-frontend/issues</bugs>
+    <dependencies>
+        <nextcloud min-version="25" max-version="31"/>
+    </dependencies>
+    <navigations>
+        <navigation>
+            <name>SwissAirDry</name>
+            <route>swissairdry.page.index</route>
+            <icon>swissairdry.svg</icon>
+            <order>77</order>
+        </navigation>
+    </navigations>
+    <settings>
+        <admin>OCA\SwissAirDry\Settings\Admin</admin>
+        <admin-section>OCA\SwissAirDry\Settings\AdminSection</admin-section>
+        <personal>OCA\SwissAirDry\Settings\Personal</personal>
+        <personal-section>OCA\SwissAirDry\Settings\PersonalSection</personal-section>
+    </settings>
+</info>

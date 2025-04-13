@@ -1,0 +1,106 @@
+version: '3.8'
+
+services:
+  # API-Server
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./app:/app
+      - api_data:/app/data
+      - api_static:/app/static
+      - api_uploads:/app/uploads
+    environment:
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-swissairdry}:${POSTGRES_PASSWORD:-swissairdry}@postgres:5432/${POSTGRES_DB:-swissairdry}
+      - MQTT_BROKER=${MQTT_BROKER:-mqtt}
+      - MQTT_PORT=${MQTT_PORT:-1883}
+      - MQTT_USERNAME=${MQTT_USERNAME:-}
+      - MQTT_PASSWORD=${MQTT_PASSWORD:-}
+      - NEXTCLOUD_URL=${NEXTCLOUD_URL:-}
+      - NEXTCLOUD_USERNAME=${NEXTCLOUD_USERNAME:-}
+      - NEXTCLOUD_PASSWORD=${NEXTCLOUD_PASSWORD:-}
+      - JWT_SECRET=${JWT_SECRET:-geheim-niemals-im-produktiveinsatz-verwenden}
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - API_PORT=5000
+      - DEBUG=${DEBUG:-False}
+      - FEATURE_MQTT_ENABLED=${FEATURE_MQTT_ENABLED:-true}
+      - FEATURE_NEXTCLOUD_ENABLED=${FEATURE_NEXTCLOUD_ENABLED:-true}
+    depends_on:
+      - postgres
+      - mqtt
+    networks:
+      - swissairdry-network
+
+  # PostgreSQL-Datenbank
+  postgres:
+    image: postgres:14-alpine
+    restart: unless-stopped
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER:-swissairdry}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-swissairdry}
+      - POSTGRES_DB=${POSTGRES_DB:-swissairdry}
+    networks:
+      - swissairdry-network
+
+  # MQTT-Broker (Mosquitto)
+  mqtt:
+    image: eclipse-mosquitto:2
+    restart: unless-stopped
+    ports:
+      - "1883:1883"
+      - "9001:9001"
+    volumes:
+      - ./mosquitto/config:/mosquitto/config
+      - ./mosquitto/data:/mosquitto/data
+      - ./mosquitto/log:/mosquitto/log
+    networks:
+      - swissairdry-network
+
+  # Optionale Nextcloud-Integration (auskommentiert, da extern)
+  # nextcloud:
+  #   image: nextcloud:latest
+  #   restart: unless-stopped
+  #   ports:
+  #     - "8080:80"
+  #   volumes:
+  #     - nextcloud_data:/var/www/html
+  #   environment:
+  #     - MYSQL_HOST=nextcloud-db
+  #     - MYSQL_DATABASE=nextcloud
+  #     - MYSQL_USER=nextcloud
+  #     - MYSQL_PASSWORD=nextcloud
+  #   depends_on:
+  #     - nextcloud-db
+  #   networks:
+  #     - swissairdry-network
+  #
+  # nextcloud-db:
+  #   image: mariadb:10
+  #   restart: unless-stopped
+  #   volumes:
+  #     - nextcloud_db:/var/lib/mysql
+  #   environment:
+  #     - MYSQL_ROOT_PASSWORD=root
+  #     - MYSQL_DATABASE=nextcloud
+  #     - MYSQL_USER=nextcloud
+  #     - MYSQL_PASSWORD=nextcloud
+  #   networks:
+  #     - swissairdry-network
+
+networks:
+  swissairdry-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  api_data:
+  api_static:
+  api_uploads:
+  # nextcloud_data:
+  # nextcloud_db:

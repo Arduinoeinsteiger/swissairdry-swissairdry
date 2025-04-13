@@ -1,0 +1,145 @@
+/**
+ * SwissAirDry - Admin-Stildatei
+ *
+ * @author Swiss Air Dry Team <info@swissairdry.com>
+ * @copyright 2023-2025 Swiss Air Dry Team
+ */
+
+/* Admin-Bereich */
+#swissairdry-admin {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+#swissairdry-admin h2 {
+    font-size: 1.8em;
+    margin-bottom: 20px;
+    color: var(--color-main-text);
+}
+
+#swissairdry-admin h3 {
+    font-size: 1.3em;
+    margin: 16px 0;
+    color: var(--color-main-text);
+}
+
+.admin-settings-block {
+    margin-bottom: 35px;
+    padding: 15px;
+    background-color: var(--color-background-hover);
+    border-radius: 5px;
+}
+
+.settings-hint {
+    margin-bottom: 15px;
+    color: var(--color-text-maxcontrast);
+}
+
+/* Formularelemente */
+.form-group {
+    margin-bottom: 15px;
+    position: relative;
+}
+
+#swissairdry-admin label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+#swissairdry-admin input[type="text"],
+#swissairdry-admin input[type="password"],
+#swissairdry-admin input[type="number"] {
+    width: 100%;
+    max-width: 400px;
+    padding: 8px;
+    border: 1px solid var(--color-border);
+    border-radius: 3px;
+    background-color: var(--color-main-background);
+    color: var(--color-main-text);
+}
+
+#swissairdry-admin .unit {
+    margin-left: 5px;
+    color: var(--color-text-maxcontrast);
+}
+
+#swissairdry-admin .hint {
+    margin-top: 3px;
+    font-size: 0.9em;
+    color: var(--color-text-maxcontrast);
+}
+
+#swissairdry-admin .checkbox + label {
+    display: inline;
+    margin-left: 5px;
+    font-weight: normal;
+}
+
+/* Button-Stile */
+#swissairdry-admin .button {
+    display: inline-block;
+    padding: 8px 16px;
+    margin-right: 10px;
+    background-color: var(--color-background-dark);
+    border: 1px solid var(--color-border);
+    border-radius: 3px;
+    color: var(--color-main-text);
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.2s, border-color 0.2s;
+}
+
+#swissairdry-admin .button:hover,
+#swissairdry-admin .button:focus {
+    background-color: var(--color-background-darker);
+    border-color: var(--color-primary);
+}
+
+#swissairdry-admin .button.primary {
+    background-color: var(--color-primary);
+    border-color: var(--color-primary);
+    color: var(--color-primary-text);
+}
+
+#swissairdry-admin .button.primary:hover,
+#swissairdry-admin .button.primary:focus {
+    background-color: var(--color-primary-element-light);
+}
+
+/* Verbindungstest-Ergebnis */
+#connection-test-result {
+    display: inline-block;
+    margin-left: 10px;
+    font-weight: bold;
+}
+
+#connection-test-result.success {
+    color: var(--swissairdry-success-color);
+}
+
+#connection-test-result.error {
+    color: var(--swissairdry-error-color);
+}
+
+/* Speicher-Nachricht */
+#save-message {
+    display: inline-block;
+    margin-left: 10px;
+    font-weight: bold;
+    transition: opacity 0.5s;
+    opacity: 0;
+}
+
+#save-message.visible {
+    opacity: 1;
+}
+
+#save-message.success {
+    color: var(--swissairdry-success-color);
+}
+
+#save-message.error {
+    color: var(--swissairdry-error-color);
+}

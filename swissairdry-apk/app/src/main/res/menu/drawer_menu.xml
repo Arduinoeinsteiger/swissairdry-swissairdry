@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:showIn="navigation_view">
+
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/nav_home"
+            android:icon="@android:drawable/ic_menu_compass"
+            android:title="@string/nav_home" />
+        <item
+            android:id="@+id/nav_devices"
+            android:icon="@android:drawable/ic_menu_share"
+            android:title="@string/nav_devices" />
+        <item
+            android:id="@+id/nav_customers"
+            android:icon="@android:drawable/ic_menu_my_calendar"
+            android:title="@string/nav_customers" />
+        <item
+            android:id="@+id/nav_jobs"
+            android:icon="@android:drawable/ic_menu_agenda"
+            android:title="@string/nav_jobs" />
+        <item
+            android:id="@+id/nav_measurements"
+            android:icon="@android:drawable/ic_menu_sort_by_size"
+            android:title="@string/nav_measurements" />
+        <item
+            android:id="@+id/nav_reports"
+            android:icon="@android:drawable/ic_menu_report_image"
+            android:title="@string/nav_reports" />
+    </group>
+    
+    <item android:title="Account">
+        <menu>
+            <item
+                android:id="@+id/nav_settings"
+                android:icon="@android:drawable/ic_menu_preferences"
+                android:title="@string/nav_settings" />
+        </menu>
+    </item>
+</menu>

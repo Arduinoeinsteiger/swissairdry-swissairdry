@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">SwissAirDry</string>
+    
+    <!-- Navigation Labels -->
+    <string name="nav_home">Dashboard</string>
+    <string name="nav_devices">Geräte</string>
+    <string name="nav_customers">Kunden</string>
+    <string name="nav_jobs">Aufträge</string>
+    <string name="nav_measurements">Messungen</string>
+    <string name="nav_reports">Berichte</string>
+    <string name="nav_settings">Einstellungen</string>
+    
+    <!-- Login Screen -->
+    <string name="login_title">Anmelden</string>
+    <string name="login_username">Benutzername</string>
+    <string name="login_password">Passwort</string>
+    <string name="login_button">Anmelden</string>
+    <string name="login_error">Anmeldung fehlgeschlagen</string>
+    <string name="login_remember_me">Angemeldet bleiben</string>
+    <string name="login_forgot_password">Passwort vergessen?</string>
+    
+    <!-- Device Management -->
+    <string name="device_list_title">Geräte</string>
+    <string name="device_add">Gerät hinzufügen</string>
+    <string name="device_scan">QR-Code scannen</string>
+    <string name="device_status_online">Online</string>
+    <string name="device_status_offline">Offline</string>
+    <string name="device_status_warning">Warnung</string>
+    <string name="device_status_error">Fehler</string>
+    <string name="device_details">Gerätedetails</string>
+    <string name="device_type">Gerätetyp</string>
+    <string name="device_id">Geräte-ID</string>
+    <string name="device_location">Standort</string>
+    <string name="device_last_reading">Letzte Messung</string>
+    <string name="device_energy_consumption">Energieverbrauch</string>
+    <string name="device_temperature">Temperatur</string>
+    <string name="device_humidity">Luftfeuchtigkeit</string>
+    <string name="device_pressure">Druck</string>
+    
+    <!-- Customer Management -->
+    <string name="customer_list_title">Kunden</string>
+    <string name="customer_add">Kunde hinzufügen</string>
+    <string name="customer_search">Kunden suchen</string>
+    <string name="customer_details">Kundendetails</string>
+    <string name="customer_name">Name</string>
+    <string name="customer_address">Adresse</string>
+    <string name="customer_email">E-Mail</string>
+    <string name="customer_phone">Telefon</string>
+    <string name="customer_jobs">Aufträge</string>
+    
+    <!-- Job Management -->
+    <string name="job_list_title">Aufträge</string>
+    <string name="job_add">Auftrag erstellen</string>
+    <string name="job_search">Aufträge suchen</string>
+    <string name="job_details">Auftragsdetails</string>
+    <string name="job_id">Auftrags-Nr.</string>
+    <string name="job_customer">Kunde</string>
+    <string name="job_location">Standort</string>
+    <string name="job_start_date">Startdatum</string>
+    <string name="job_end_date">Enddatum</string>
+    <string name="job_status">Status</string>
+    <string name="job_description">Beschreibung</string>
+    <string name="job_devices">Zugewiesene Geräte</string>
+    <string name="job_add_devices">Geräte hinzufügen</string>
+    <string name="job_measurements">Messungen</string>
+    <string name="job_photos">Fotos</string>
+    <string name="job_reports">Berichte</string>
+    
+    <!-- Measurement Management -->
+    <string name="measurement_list_title">Messungen</string>
+    <string name="measurement_add">Messung hinzufügen</string>
+    <string name="measurement_job">Zugehöriger Auftrag</string>
+    <string name="measurement_date">Datum</string>
+    <string name="measurement_location">Messort</string>
+    <string name="measurement_type">Messtyp</string>
+    <string name="measurement_value">Messwert</string>
+    <string name="measurement_unit">Einheit</string>
+    <string name="measurement_add_photo">Foto hinzufügen</string>
+    <string name="measurement_comments">Anmerkungen</string>
+    
+    <!-- Reports -->
+    <string name="report_list_title">Berichte</string>
+    <string name="report_create">Bericht erstellen</string>
+    <string name="report_job">Zugehöriger Auftrag</string>
+    <string name="report_date">Datum</string>
+    <string name="report_type">Berichtstyp</string>
+    <string name="report_preview">Vorschau</string>
+    <string name="report_send">Bericht senden</string>
+    <string name="report_download">Herunterladen</string>
+    
+    <!-- Settings -->
+    <string name="settings_title">Einstellungen</string>
+    <string name="settings_profile">Profil</string>
+    <string name="settings_dark_mode">Dunkler Modus</string>
+    <string name="settings_notifications">Benachrichtigungen</string>
+    <string name="settings_language">Sprache</string>
+    <string name="settings_sync">Synchronisierung</string>
+    <string name="settings_server_url">Server-URL</string>
+    <string name="settings_mqtt_broker">MQTT-Broker</string>
+    <string name="settings_logout">Abmelden</string>
+    <string name="settings_about">Über</string>
+    <string name="settings_version">Version</string>
+    
+    <!-- Common -->
+    <string name="save">Speichern</string>
+    <string name="cancel">Abbrechen</string>
+    <string name="delete">Löschen</string>
+    <string name="edit">Bearbeiten</string>
+    <string name="search">Suchen</string>
+    <string name="filter">Filter</string>
+    <string name="sort">Sortieren</string>
+    <string name="loading">Wird geladen…</string>
+    <string name="retry">Wiederholen</string>
+    <string name="error_network">Netzwerkfehler</string>
+    <string name="error_server">Serverfehler</string>
+    <string name="error_unknown">Unbekannter Fehler</string>
+    <string name="success">Erfolgreich</string>
+    <string name="yes">Ja</string>
+    <string name="no">Nein</string>
+    <string name="ok">OK</string>
+    <string name="back">Zurück</string>
+    <string name="next">Weiter</string>
+    <string name="finish">Fertigstellen</string>
+</resources>

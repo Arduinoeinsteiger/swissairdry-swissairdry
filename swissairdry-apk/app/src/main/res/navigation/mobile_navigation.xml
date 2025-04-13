@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/mobile_navigation"
+    app:startDestination="@id/nav_home">
+
+    <fragment
+        android:id="@+id/nav_home"
+        android:name="com.swissairdry.mobile.ui.home.HomeFragment"
+        android:label="@string/nav_home"
+        tools:layout="@layout/fragment_home" />
+
+    <fragment
+        android:id="@+id/nav_devices"
+        android:name="com.swissairdry.mobile.ui.devices.DevicesFragment"
+        android:label="@string/nav_devices"
+        tools:layout="@layout/fragment_devices" />
+
+    <fragment
+        android:id="@+id/nav_customers"
+        android:name="com.swissairdry.mobile.ui.customers.CustomersFragment"
+        android:label="@string/nav_customers"
+        tools:layout="@layout/fragment_customers" />
+
+    <fragment
+        android:id="@+id/nav_jobs"
+        android:name="com.swissairdry.mobile.ui.jobs.JobsFragment"
+        android:label="@string/nav_jobs"
+        tools:layout="@layout/fragment_jobs" />
+
+    <fragment
+        android:id="@+id/nav_measurements"
+        android:name="com.swissairdry.mobile.ui.measurements.MeasurementsFragment"
+        android:label="@string/nav_measurements"
+        tools:layout="@layout/fragment_measurements" />
+
+    <fragment
+        android:id="@+id/nav_reports"
+        android:name="com.swissairdry.mobile.ui.reports.ReportsFragment"
+        android:label="@string/nav_reports"
+        tools:layout="@layout/fragment_reports" />
+
+    <fragment
+        android:id="@+id/nav_settings"
+        android:name="com.swissairdry.mobile.ui.settings.SettingsFragment"
+        android:label="@string/nav_settings"
+        tools:layout="@layout/fragment_settings" />
+
+    <fragment
+        android:id="@+id/loginFragment"
+        android:name="com.swissairdry.mobile.ui.auth.LoginFragment"
+        android:label="@string/login_title"
+        tools:layout="@layout/fragment_login" />
+
+    <fragment
+        android:id="@+id/deviceDetailFragment"
+        android:name="com.swissairdry.mobile.ui.devices.DeviceDetailFragment"
+        android:label="@string/device_details"
+        tools:layout="@layout/fragment_device_detail">
+        <argument
+            android:name="deviceId"
+            app:argType="string" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/customerDetailFragment"
+        android:name="com.swissairdry.mobile.ui.customers.CustomerDetailFragment"
+        android:label="@string/customer_details"
+        tools:layout="@layout/fragment_customer_detail">
+        <argument
+            android:name="customerId"
+            app:argType="string" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/jobDetailFragment"
+        android:name="com.swissairdry.mobile.ui.jobs.JobDetailFragment"
+        android:label="@string/job_details"
+        tools:layout="@layout/fragment_job_detail">
+        <argument
+            android:name="jobId"
+            app:argType="string" />
+    </fragment>
+
+</navigation>

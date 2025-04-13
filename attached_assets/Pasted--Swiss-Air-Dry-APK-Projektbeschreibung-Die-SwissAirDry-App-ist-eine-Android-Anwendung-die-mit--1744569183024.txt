@@ -1,0 +1,77 @@
+# Swiss Air Dry APK
+
+## Projektbeschreibung
+Die SwissAirDry-App ist eine Android-Anwendung, die mit Kotlin entwickelt wurde. Die App soll eine Lösung für die Überwachung und Verwaltung von Trocknungsgeräten bieten.
+
+## Aktueller Entwicklungsstand
+Die App befindet sich in der Anfangsphase der Entwicklung. Bisher implementiert sind:
+
+- **Grundgerüst**:
+  - MainActivity mit Basis-Setup
+  - Bottom-Navigation mit drei Hauptbereichen (Home, Dashboard, Notifications)
+  - Navigation mit NavController
+
+## Geplante Funktionen
+Folgende Funktionen sind für die zukünftige Implementierung geplant:
+
+- **Architektur**:
+  - MVVM-Architektur
+  - Dependency Injection
+  - API-Anbindung
+- **Navigation**:
+  - Drawer-Navigation
+  - Erweiterte Bottom-Navigation
+- **Dashboard**:
+  - Übersicht mit Geräte-, Auftrags- und Kundenzahlen
+  - Gerätemonitor mit Status-Anzeige
+  - Temperaturanzeige
+  - Zeitstempel der letzten Aktualisierung
+  - Aktualisieren-Button
+- **UI/UX**:
+  - Dunkles Thema (Tag/Nacht-Design)
+  - Erweiterte UI-Komponenten
+  - Responsive Layouts
+
+## Voraussetzungen
+- Android Studio (neueste Version empfohlen)
+- JDK 11 oder höher
+- Android SDK
+
+## Installation
+1. Klonen Sie das Repository:
+```bash
+git clone [Repository-URL]
+```
+
+2. Öffnen Sie das Projekt in Android Studio:
+   - Wählen Sie "Open an existing project"
+   - Navigieren Sie zum geklonten Verzeichnis
+   - Wählen Sie die Projektdatei aus
+
+3. Warten Sie, bis die Gradle-Synchronisation abgeschlossen ist
+
+4. Verbinden Sie ein Android-Gerät oder starten Sie einen Emulator
+
+## Build & Run
+1. Klicken Sie auf den "Run"-Button in Android Studio (grüner Play-Button)
+2. Wählen Sie Ihr Zielgerät aus
+3. Die App wird automatisch gebaut und auf dem Gerät installiert
+
+## Projektstruktur
+- `app/`: Hauptanwendungsmodul
+  - `src/`: Quellcode
+    - `main/`: Hauptquellcode
+      - `java/`: Kotlin-Quellcode
+      - `res/`: Ressourcen
+    - `test/`: Unit Tests
+    - `androidTest/`: Instrumentierte Tests
+
+## Entwicklung
+- Das Projekt verwendet Kotlin als Programmiersprache
+- Gradle wird als Build-System verwendet
+- Die Projektstruktur folgt den Android-Entwicklungsrichtlinien
+- Geplante Implementierung nach MVVM-Architekturmuster
+- Geplante Verwendung von Dependency Injection für bessere Testbarkeit
+
+## Lizenz
+[Lizenzinformationen hier einfügen]

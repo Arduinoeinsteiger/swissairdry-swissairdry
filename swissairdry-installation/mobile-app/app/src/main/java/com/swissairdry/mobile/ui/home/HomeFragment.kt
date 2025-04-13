@@ -4,23 +4,21 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.view.isVisible
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
-import androidx.recyclerview.widget.LinearLayoutManager
+import com.google.android.material.snackbar.Snackbar
 import com.swissairdry.mobile.R
 import com.swissairdry.mobile.databinding.FragmentHomeBinding
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.launch
 import timber.log.Timber
 
 /**
- * HomeFragment - Hauptdashboard der Anwendung
+ * HomeFragment - Startseite der App
  *
- * Dieses Fragment zeigt eine Übersicht über aktuelle Aufträge, Gerätestatus
- * und anstehende Aufgaben an. Es dient als zentrale Anlaufstelle in der App.
+ * Dieses Fragment zeigt eine Übersicht über Geräte, Aufträge und Kunden
+ * und dient als Einstiegspunkt für die Navigation zu anderen Bereichen.
  * 
  * @author Swiss Air Dry Team <info@swissairdry.com>
  * @copyright 2023-2025 Swiss Air Dry Team
@@ -30,9 +28,9 @@ class HomeFragment : Fragment() {
 
     private var _binding: FragmentHomeBinding? = null
     private val binding get() = _binding!!
-    
+
     private val viewModel: HomeViewModel by viewModels()
-    
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -41,92 +39,90 @@ class HomeFragment : Fragment() {
         _binding = FragmentHomeBinding.inflate(inflater, container, false)
         return binding.root
     }
-    
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         
-        setupObservers()
         setupListeners()
+        setupObservers()
         
         // Daten laden
         viewModel.loadDashboardData()
     }
-    
-    private fun setupObservers() {
-        lifecycleScope.launch {
-            viewModel.uiState.collectLatest { state ->
-                when (state) {
-                    is HomeUiState.Loading -> showLoading()
-                    is HomeUiState.Error -> showError(state.message)
-                    is HomeUiState.Success -> updateDashboard(state)
-                }
-            }
-        }
-    }
-    
+
     private fun setupListeners() {
-        // Navigation zu den Geräten
-        binding.cardDevices.setOnClickListener {
-            findNavController().navigate(R.id.nav_devices)
-        }
-        
-        // Navigation zu den Aufträgen
-        binding.cardJobs.setOnClickListener {
-            findNavController().navigate(R.id.nav_jobs)
-        }
-        
-        // Navigation zu den Kunden
-        binding.cardCustomers.setOnClickListener {
-            findNavController().navigate(R.id.nav_customers)
-        }
-        
-        // Aktualisieren der Daten per Pull-to-Refresh
+        // SwipeRefreshLayout konfigurieren
         binding.swipeRefreshLayout.setOnRefreshListener {
             viewModel.loadDashboardData()
         }
-    }
-    
-    private fun showLoading() {
-        binding.progressBar.visibility = View.VISIBLE
-        binding.errorView.visibility = View.GONE
-        binding.contentView.visibility = View.GONE
-    }
-    
-    private fun showError(message: String) {
-        binding.progressBar.visibility = View.GONE
-        binding.errorView.visibility = View.VISIBLE
-        binding.contentView.visibility = View.GONE
-        binding.swipeRefreshLayout.isRefreshing = false
         
-        binding.errorMessage.text = message
+        // Retry-Button konfigurieren
         binding.retryButton.setOnClickListener {
             viewModel.loadDashboardData()
         }
         
-        Timber.e("Fehler beim Laden der Dashboard-Daten: $message")
+        // Karten-Klick-Listener
+        binding.cardDevices.setOnClickListener {
+            findNavController().navigate(R.id.nav_devices)
+        }
+        
+        binding.cardJobs.setOnClickListener {
+            findNavController().navigate(R.id.nav_jobs)
+        }
+        
+        binding.cardCustomers.setOnClickListener {
+            findNavController().navigate(R.id.nav_customers)
+        }
     }
-    
-    private fun updateDashboard(state: HomeUiState.Success) {
-        binding.progressBar.visibility = View.GONE
-        binding.errorView.visibility = View.GONE
-        binding.contentView.visibility = View.VISIBLE
-        binding.swipeRefreshLayout.isRefreshing = false
+
+    private fun setupObservers() {
+        // Beobachter für den Ladezustand
+        viewModel.isLoading.observe(viewLifecycleOwner) { isLoading ->
+            binding.swipeRefreshLayout.isRefreshing = isLoading
+            binding.progressBar.isVisible = isLoading && !binding.swipeRefreshLayout.isRefreshing
+        }
         
-        // Gerätestatistiken aktualisieren
-        binding.deviceCount.text = state.deviceStats.totalCount.toString()
-        binding.deviceOnlineCount.text = state.deviceStats.onlineCount.toString()
-        binding.deviceWarningCount.text = state.deviceStats.warningCount.toString()
-        binding.deviceErrorCount.text = state.deviceStats.errorCount.toString()
+        // Beobachter für Fehler
+        viewModel.error.observe(viewLifecycleOwner) { errorMessage ->
+            if (errorMessage != null) {
+                binding.errorView.isVisible = true
+                binding.contentView.isVisible = false
+                binding.errorMessage.text = errorMessage
+                
+                Snackbar.make(binding.root, errorMessage, Snackbar.LENGTH_LONG).show()
+                Timber.e("Fehler auf Dashboard: %s", errorMessage)
+            } else {
+                binding.errorView.isVisible = false
+                binding.contentView.isVisible = true
+            }
+        }
         
-        // Auftragsstatistiken aktualisieren
-        binding.activeJobsCount.text = state.jobStats.activeCount.toString()
-        binding.completedJobsCount.text = state.jobStats.completedCount.toString()
-        binding.pendingJobsCount.text = state.jobStats.pendingCount.toString()
+        // Beobachter für Begrüßung
+        viewModel.greeting.observe(viewLifecycleOwner) { greeting ->
+            binding.greetingText.text = greeting
+        }
         
-        // Kundenstatistiken aktualisieren
-        binding.customersCount.text = state.customerCount.toString()
+        // Beobachter für Gerätezahlen
+        viewModel.deviceStats.observe(viewLifecycleOwner) { stats ->
+            binding.deviceCount.text = stats.total.toString()
+            binding.deviceOnlineCount.text = stats.online.toString()
+            binding.deviceWarningCount.text = stats.warning.toString()
+            binding.deviceErrorCount.text = stats.error.toString()
+        }
+        
+        // Beobachter für Auftragszahlen
+        viewModel.jobStats.observe(viewLifecycleOwner) { stats ->
+            binding.activeJobsCount.text = stats.active.toString()
+            binding.pendingJobsCount.text = stats.pending.toString()
+            binding.completedJobsCount.text = stats.completed.toString()
+        }
+        
+        // Beobachter für Kundenzahlen
+        viewModel.customerCount.observe(viewLifecycleOwner) { count ->
+            binding.customersCount.text = count.toString()
+        }
     }
-    
+
     override fun onDestroyView() {
         super.onDestroyView()
         _binding = null

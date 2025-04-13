@@ -1,249 +1,263 @@
 package com.swissairdry.mobile.api
 
-import com.swissairdry.mobile.data.models.*
+import com.swissairdry.mobile.data.model.User
 import retrofit2.Response
 import retrofit2.http.*
 
 /**
- * API Service für die Kommunikation mit dem SwissAirDry Backend
- * 
- * Diese Schnittstelle definiert alle verfügbaren API-Endpunkte
- * für die Interaktion mit dem SwissAirDry Backend.
+ * ApiService - Retrofit-Interface für API-Aufrufe
+ *
+ * Dieses Interface definiert alle API-Endpunkte, die von der App verwendet werden.
+ * Es wird von Retrofit verwendet, um HTTP-Anfragen zu erstellen und die Antworten
+ * in Kotlin-Objekte zu konvertieren.
  * 
  * @author Swiss Air Dry Team <info@swissairdry.com>
  * @copyright 2023-2025 Swiss Air Dry Team
  */
 interface ApiService {
 
-    // ===== Authentifizierung =====
-    
+    // Authentifizierung
     @POST("auth/login")
     suspend fun login(@Body loginRequest: LoginRequest): Response<LoginResponse>
     
+    @POST("auth/refresh")
+    suspend fun refreshToken(): Response<LoginResponse>
+    
     @POST("auth/logout")
-    suspend fun logout(@Header("Authorization") token: String): Response<Unit>
+    suspend fun logout(): Response<Unit>
     
-    @GET("auth/me")
-    suspend fun getUserProfile(@Header("Authorization") token: String): Response<UserProfile>
-
-    // ===== Geräte =====
+    // Benutzer
+    @GET("users/me")
+    suspend fun getCurrentUser(): Response<User>
     
+    @GET("users/{userId}")
+    suspend fun getUserById(@Path("userId") userId: Int): Response<User>
+    
+    // Geräte
     @GET("devices")
     suspend fun getDevices(
-        @Header("Authorization") token: String,
-        @Query("page") page: Int? = null,
+        @Query("status") status: String? = null,
         @Query("limit") limit: Int? = null,
-        @Query("filter") filter: String? = null,
-        @Query("sort") sort: String? = null
-    ): Response<PagedResponse<Device>>
+        @Query("offset") offset: Int? = null
+    ): Response<DeviceListResponse>
     
-    @GET("devices/{id}")
-    suspend fun getDeviceById(
-        @Header("Authorization") token: String,
-        @Path("id") id: String
-    ): Response<Device>
+    @GET("devices/{deviceId}")
+    suspend fun getDeviceById(@Path("deviceId") deviceId: String): Response<DeviceResponse>
     
-    @POST("devices")
-    suspend fun createDevice(
-        @Header("Authorization") token: String,
-        @Body device: DeviceCreateRequest
-    ): Response<Device>
+    @GET("devices/{deviceId}/measurements")
+    suspend fun getDeviceMeasurements(
+        @Path("deviceId") deviceId: String,
+        @Query("from") from: String? = null,
+        @Query("to") to: String? = null
+    ): Response<MeasurementListResponse>
     
-    @PUT("devices/{id}")
-    suspend fun updateDevice(
-        @Header("Authorization") token: String,
-        @Path("id") id: String,
-        @Body device: DeviceUpdateRequest
-    ): Response<Device>
-    
-    @DELETE("devices/{id}")
-    suspend fun deleteDevice(
-        @Header("Authorization") token: String,
-        @Path("id") id: String
-    ): Response<Unit>
-    
-    @GET("devices/{id}/readings")
-    suspend fun getDeviceReadings(
-        @Header("Authorization") token: String,
-        @Path("id") id: String,
-        @Query("start") startDate: String? = null,
-        @Query("end") endDate: String? = null,
-        @Query("type") type: String? = null
-    ): Response<List<DeviceReading>>
-
-    // ===== Kunden =====
-    
-    @GET("customers")
-    suspend fun getCustomers(
-        @Header("Authorization") token: String,
-        @Query("page") page: Int? = null,
-        @Query("limit") limit: Int? = null,
-        @Query("filter") filter: String? = null,
-        @Query("sort") sort: String? = null
-    ): Response<PagedResponse<Customer>>
-    
-    @GET("customers/{id}")
-    suspend fun getCustomerById(
-        @Header("Authorization") token: String,
-        @Path("id") id: String
-    ): Response<Customer>
-    
-    @POST("customers")
-    suspend fun createCustomer(
-        @Header("Authorization") token: String,
-        @Body customer: CustomerCreateRequest
-    ): Response<Customer>
-    
-    @PUT("customers/{id}")
-    suspend fun updateCustomer(
-        @Header("Authorization") token: String,
-        @Path("id") id: String,
-        @Body customer: CustomerUpdateRequest
-    ): Response<Customer>
-    
-    @DELETE("customers/{id}")
-    suspend fun deleteCustomer(
-        @Header("Authorization") token: String,
-        @Path("id") id: String
-    ): Response<Unit>
-
-    // ===== Aufträge =====
-    
+    // Aufträge
     @GET("jobs")
     suspend fun getJobs(
-        @Header("Authorization") token: String,
-        @Query("page") page: Int? = null,
-        @Query("limit") limit: Int? = null,
-        @Query("filter") filter: String? = null,
-        @Query("sort") sort: String? = null,
         @Query("status") status: String? = null,
-        @Query("customerId") customerId: String? = null
-    ): Response<PagedResponse<Job>>
+        @Query("limit") limit: Int? = null,
+        @Query("offset") offset: Int? = null
+    ): Response<JobListResponse>
     
-    @GET("jobs/{id}")
-    suspend fun getJobById(
-        @Header("Authorization") token: String,
-        @Path("id") id: String
-    ): Response<Job>
+    @GET("jobs/{jobId}")
+    suspend fun getJobById(@Path("jobId") jobId: Int): Response<JobResponse>
     
     @POST("jobs")
-    suspend fun createJob(
-        @Header("Authorization") token: String,
-        @Body job: JobCreateRequest
-    ): Response<Job>
+    suspend fun createJob(@Body jobRequest: JobRequest): Response<JobResponse>
     
-    @PUT("jobs/{id}")
+    @PUT("jobs/{jobId}")
     suspend fun updateJob(
-        @Header("Authorization") token: String,
-        @Path("id") id: String,
-        @Body job: JobUpdateRequest
-    ): Response<Job>
+        @Path("jobId") jobId: Int,
+        @Body jobRequest: JobRequest
+    ): Response<JobResponse>
     
-    @DELETE("jobs/{id}")
-    suspend fun deleteJob(
-        @Header("Authorization") token: String,
-        @Path("id") id: String
-    ): Response<Unit>
-    
-    @GET("jobs/{id}/devices")
-    suspend fun getJobDevices(
-        @Header("Authorization") token: String,
-        @Path("id") id: String
-    ): Response<List<Device>>
-    
-    @POST("jobs/{id}/devices")
-    suspend fun addDeviceToJob(
-        @Header("Authorization") token: String,
-        @Path("id") id: String,
-        @Body request: JobDeviceAssignRequest
-    ): Response<Unit>
-    
-    @DELETE("jobs/{jobId}/devices/{deviceId}")
-    suspend fun removeDeviceFromJob(
-        @Header("Authorization") token: String,
-        @Path("jobId") jobId: String,
-        @Path("deviceId") deviceId: String
-    ): Response<Unit>
-
-    // ===== Messungen =====
-    
-    @GET("measurements")
-    suspend fun getMeasurements(
-        @Header("Authorization") token: String,
-        @Query("page") page: Int? = null,
+    // Kunden
+    @GET("customers")
+    suspend fun getCustomers(
+        @Query("search") search: String? = null,
         @Query("limit") limit: Int? = null,
-        @Query("jobId") jobId: String? = null,
-        @Query("type") type: String? = null,
-        @Query("startDate") startDate: String? = null,
-        @Query("endDate") endDate: String? = null
-    ): Response<PagedResponse<Measurement>>
+        @Query("offset") offset: Int? = null
+    ): Response<CustomerListResponse>
     
-    @GET("measurements/{id}")
-    suspend fun getMeasurementById(
-        @Header("Authorization") token: String,
-        @Path("id") id: String
-    ): Response<Measurement>
+    @GET("customers/{customerId}")
+    suspend fun getCustomerById(@Path("customerId") customerId: Int): Response<CustomerResponse>
     
+    // Messungen
     @POST("measurements")
-    suspend fun createMeasurement(
-        @Header("Authorization") token: String,
-        @Body measurement: MeasurementCreateRequest
-    ): Response<Measurement>
+    suspend fun createMeasurement(@Body measurementRequest: MeasurementRequest): Response<MeasurementResponse>
     
-    @PUT("measurements/{id}")
-    suspend fun updateMeasurement(
-        @Header("Authorization") token: String,
-        @Path("id") id: String,
-        @Body measurement: MeasurementUpdateRequest
-    ): Response<Measurement>
-    
-    @DELETE("measurements/{id}")
-    suspend fun deleteMeasurement(
-        @Header("Authorization") token: String,
-        @Path("id") id: String
-    ): Response<Unit>
-    
-    @POST("measurements/{id}/photos")
-    suspend fun uploadMeasurementPhoto(
-        @Header("Authorization") token: String,
-        @Path("id") id: String,
-        @Body photo: PhotoUploadRequest
-    ): Response<PhotoResponse>
-
-    // ===== Berichte =====
-    
+    // Berichte
     @GET("reports")
     suspend fun getReports(
-        @Header("Authorization") token: String,
-        @Query("page") page: Int? = null,
+        @Query("jobId") jobId: Int? = null,
         @Query("limit") limit: Int? = null,
-        @Query("jobId") jobId: String? = null,
-        @Query("type") type: String? = null
-    ): Response<PagedResponse<Report>>
+        @Query("offset") offset: Int? = null
+    ): Response<ReportListResponse>
     
-    @GET("reports/{id}")
-    suspend fun getReportById(
-        @Header("Authorization") token: String,
-        @Path("id") id: String
-    ): Response<Report>
+    @GET("reports/{reportId}")
+    suspend fun getReportById(@Path("reportId") reportId: Int): Response<ReportResponse>
     
-    @POST("reports/generate")
-    suspend fun generateReport(
-        @Header("Authorization") token: String,
-        @Body request: ReportGenerateRequest
-    ): Response<Report>
+    @POST("reports")
+    suspend fun createReport(@Body reportRequest: ReportRequest): Response<ReportResponse>
     
-    @GET("reports/{id}/download")
-    suspend fun downloadReport(
-        @Header("Authorization") token: String,
-        @Path("id") id: String,
-        @Query("format") format: String = "pdf"
-    ): Response<ResponseBody>
+    // Fotos
+    @Multipart
+    @POST("photos")
+    suspend fun uploadPhoto(
+        @Part("jobId") jobId: Int,
+        @Part("description") description: String,
+        @Part photo: MultipartBody.Part
+    ): Response<PhotoResponse>
     
-    @POST("reports/{id}/send")
-    suspend fun sendReport(
-        @Header("Authorization") token: String,
-        @Path("id") id: String,
-        @Body request: ReportSendRequest
-    ): Response<Unit>
+    @GET("photos")
+    suspend fun getPhotos(
+        @Query("jobId") jobId: Int? = null,
+        @Query("limit") limit: Int? = null,
+        @Query("offset") offset: Int? = null
+    ): Response<PhotoListResponse>
+    
+    // System
+    @GET("system/health")
+    suspend fun getSystemHealth(): Response<SystemHealthResponse>
 }
+
+// Datenmodelle für API-Requests und -Responses
+
+data class LoginRequest(
+    val username: String,
+    val password: String
+)
+
+data class LoginResponse(
+    val token: String,
+    val refreshToken: String,
+    val user: User
+)
+
+data class DeviceListResponse(
+    val items: List<DeviceResponse>,
+    val total: Int,
+    val limit: Int,
+    val offset: Int
+)
+
+data class DeviceResponse(
+    val id: String,
+    val name: String,
+    val type: String,
+    val status: String,
+    val lastSeen: String?,
+    val measurements: List<MeasurementResponse>?
+)
+
+data class MeasurementListResponse(
+    val items: List<MeasurementResponse>,
+    val total: Int,
+    val limit: Int,
+    val offset: Int
+)
+
+data class MeasurementResponse(
+    val id: Int,
+    val deviceId: String,
+    val timestamp: String,
+    val type: String,
+    val value: Double,
+    val unit: String
+)
+
+data class MeasurementRequest(
+    val deviceId: String,
+    val type: String,
+    val value: Double,
+    val unit: String
+)
+
+data class JobListResponse(
+    val items: List<JobResponse>,
+    val total: Int,
+    val limit: Int,
+    val offset: Int
+)
+
+data class JobResponse(
+    val id: Int,
+    val customerId: Int,
+    val title: String,
+    val description: String,
+    val status: String,
+    val createdAt: String,
+    val updatedAt: String,
+    val customer: CustomerResponse?
+)
+
+data class JobRequest(
+    val customerId: Int,
+    val title: String,
+    val description: String,
+    val status: String
+)
+
+data class CustomerListResponse(
+    val items: List<CustomerResponse>,
+    val total: Int,
+    val limit: Int,
+    val offset: Int
+)
+
+data class CustomerResponse(
+    val id: Int,
+    val name: String,
+    val contactPerson: String,
+    val email: String,
+    val phone: String,
+    val address: String,
+    val city: String,
+    val zipCode: String
+)
+
+data class ReportListResponse(
+    val items: List<ReportResponse>,
+    val total: Int,
+    val limit: Int,
+    val offset: Int
+)
+
+data class ReportResponse(
+    val id: Int,
+    val jobId: Int,
+    val title: String,
+    val content: String,
+    val createdAt: String,
+    val updatedAt: String,
+    val createdBy: Int
+)
+
+data class ReportRequest(
+    val jobId: Int,
+    val title: String,
+    val content: String
+)
+
+data class PhotoListResponse(
+    val items: List<PhotoResponse>,
+    val total: Int,
+    val limit: Int,
+    val offset: Int
+)
+
+data class PhotoResponse(
+    val id: Int,
+    val jobId: Int,
+    val url: String,
+    val description: String,
+    val createdAt: String,
+    val createdBy: Int
+)
+
+data class SystemHealthResponse(
+    val status: String,
+    val version: String,
+    val database: Boolean,
+    val mqttBroker: Boolean
+)

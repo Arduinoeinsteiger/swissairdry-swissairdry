@@ -1,40 +1,134 @@
 version: '3.8'
 
 services:
-  postgres:
-    image: postgres:14-alpine
-    container_name: swissairdry-postgres
-    restart: always
-    environment:
-      POSTGRES_USER: swissairdry
-      POSTGRES_PASSWORD: swissairdry_password
-      POSTGRES_DB: swissairdry
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    ports:
-      - "5432:5432"
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U swissairdry -d swissairdry"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-
-  docker-base-api:
-    build: ./docker-base-api
+  # SwissAirDry API Server
+  api:
+    build:
+      context: ./swissairdry-docker
+    image: swissairdry/api:latest
     container_name: swissairdry-api
     restart: always
     depends_on:
       - postgres
+      - mosquitto
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./swissairdry-server/app:/app
+      - ./swissairdry-server/data:/data
     environment:
-      - DATABASE_URL=postgresql://swissairdry:swissairdry_password@postgres:5432/swissairdry
-      - JWT_SECRET_KEY=your_jwt_secret_key
-      - DEBUG=True
+      - APP_ENVIRONMENT=production
+      - APP_SECRET_KEY=${APP_SECRET_KEY:-de77c43e5f4d4b1b897b6f8f77d97c9b}
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-swissairdry}:${POSTGRES_PASSWORD:-swissairdry_password}@postgres:5432/${POSTGRES_DB:-swissairdry}
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY:-your_jwt_secret_key}
+      - MQTT_BROKER_HOST=mosquitto
+      - MQTT_BROKER_PORT=1883
+      - MQTT_CLIENT_ID=swissairdry-api
+      - MQTT_USERNAME=${MQTT_USERNAME:-swissairdry}
+      - MQTT_PASSWORD=${MQTT_PASSWORD:-swissairdry}
+      - PRIMARY_API_HOST=${PRIMARY_API_HOST:-api.vgnc.org}
+      - PRIMARY_API_PORT=${PRIMARY_API_PORT:-443}
+      - PRIMARY_API_SCHEME=${PRIMARY_API_SCHEME:-https}
+      - BACKUP_API_HOST=${BACKUP_API_HOST:-swissairdry.replit.app}
+      - BACKUP_API_PORT=${BACKUP_API_PORT:-443}
+      - BACKUP_API_SCHEME=${BACKUP_API_SCHEME:-https}
+      - NEXTCLOUD_URL=${NEXTCLOUD_URL:-https://cloud.vgnc.org}
+      - NEXTCLOUD_APP_KEY=${NEXTCLOUD_APP_KEY:-}
+      - DEBUG=${DEBUG:-False}
       - API_PORT=5000
-      - API_BASE_URL=http://localhost:5000
+    networks:
+      - swissairdry-network
+
+  # Alternative Docker-Base-API für Entwicklungszwecke
+  docker-base-api:
+    build: ./docker-base-api
+    container_name: swissairdry-base-api
+    restart: always
+    depends_on:
+      - postgres
+    environment:
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-swissairdry}:${POSTGRES_PASSWORD:-swissairdry_password}@postgres:5432/${POSTGRES_DB:-swissairdry}
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY:-your_jwt_secret_key}
+      - DEBUG=${DEBUG:-True}
+      - API_PORT=5001
+      - API_BASE_URL=http://localhost:5001
+      - PRIMARY_API_HOST=${PRIMARY_API_HOST:-api.vgnc.org}
+      - PRIMARY_API_PORT=${PRIMARY_API_PORT:-443}
+      - PRIMARY_API_SCHEME=${PRIMARY_API_SCHEME:-https}
+      - BACKUP_API_HOST=${BACKUP_API_HOST:-swissairdry.replit.app}
+      - BACKUP_API_PORT=${BACKUP_API_PORT:-443}
+      - BACKUP_API_SCHEME=${BACKUP_API_SCHEME:-https}
     volumes:
       - ./docker-base-api/app:/app
     ports:
-      - "5000:5000"
+      - "5001:5001"
+    networks:
+      - swissairdry-network
+
+  # PostgreSQL Datenbank
+  postgres:
+    image: postgres:15-alpine
+    container_name: swissairdry-postgres
+    restart: always
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./swissairdry-docker/init-db:/docker-entrypoint-initdb.d
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER:-swissairdry}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-swissairdry_password}
+      - POSTGRES_DB=${POSTGRES_DB:-swissairdry}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-swissairdry} -d ${POSTGRES_DB:-swissairdry}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - swissairdry-network
+
+  # MQTT Broker für IoT-Geräte
+  mosquitto:
+    image: eclipse-mosquitto:2.0.15
+    container_name: swissairdry-mqtt
+    restart: always
+    ports:
+      - "1883:1883"
+      - "9001:9001"
+    volumes:
+      - ./swissairdry-docker/mosquitto/config:/mosquitto/config
+      - ./swissairdry-docker/mosquitto/data:/mosquitto/data
+      - ./swissairdry-docker/mosquitto/log:/mosquitto/log
+    networks:
+      - swissairdry-network
+
+  # Nextcloud für Dateiverwaltung (optional, wenn keine eigenständige Nextcloud-Instanz existiert)
+  nextcloud:
+    image: nextcloud:27.1.2-apache
+    container_name: swissairdry-nextcloud
+    restart: always
+    depends_on:
+      - postgres
+    ports:
+      - "8080:80"
+    volumes:
+      - nextcloud_data:/var/www/html
+      - ./swissairdry-nextcloud:/var/www/html/custom_apps/swissairdry
+    environment:
+      - POSTGRES_HOST=postgres
+      - POSTGRES_DB=${NEXTCLOUD_POSTGRES_DB:-nextcloud}
+      - POSTGRES_USER=${NEXTCLOUD_POSTGRES_USER:-nextcloud}
+      - POSTGRES_PASSWORD=${NEXTCLOUD_POSTGRES_PASSWORD:-nextcloud}
+      - NEXTCLOUD_ADMIN_USER=${NEXTCLOUD_ADMIN_USER:-admin}
+      - NEXTCLOUD_ADMIN_PASSWORD=${NEXTCLOUD_ADMIN_PASSWORD:-admin}
+      - NEXTCLOUD_TRUSTED_DOMAINS=${NEXTCLOUD_TRUSTED_DOMAINS:-localhost nextcloud.localhost}
+    networks:
+      - swissairdry-network
 
 volumes:
   postgres_data:
+  nextcloud_data:
+
+networks:
+  swissairdry-network:
+    driver: bridge

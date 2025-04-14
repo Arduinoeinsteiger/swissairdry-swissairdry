@@ -1,0 +1,44 @@
+<?xml version="1.0"?>
+<info xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://apps.nextcloud.com/schema/apps/info.xsd">
+    <id>swissairdry</id>
+    <name>SwissAirDry</name>
+    <summary>SwissAirDry Integration für Nextcloud</summary>
+    <description><![CDATA[Die SwissAirDry-App für Nextcloud bietet eine nahtlose Integration zwischen dem SwissAirDry-System zur Bautrocknung und Nextcloud.
+
+Funktionen:
+- Verwaltung von Trocknungsgeräten, Sensoren und Aufträgen
+- Echtzeit-Überwachung der Geräte
+- Automatische Synchronisation von Berichten und Bildern
+- Nahtlose Integration mit dem SwissAirDry-Backend
+- Einbindung von IoT-Geräten über MQTT
+- Benutzerfreundliche Oberfläche für alle Endgeräte
+    ]]></description>
+    <version>1.0.0</version>
+    <licence>agpl</licence>
+    <author mail="info@swissairdry.com">Swiss Air Dry Team</author>
+    <namespace>SwissAirDry</namespace>
+    <category>office</category>
+    <category>tools</category>
+    <category>integration</category>
+    <website>https://swissairdry.com</website>
+    <bugs>https://github.com/swissairdry/swissairdry-nextcloud/issues</bugs>
+    <repository>https://github.com/swissairdry/swissairdry-nextcloud</repository>
+    <screenshot>https://swissairdry.com/screenshots/screenshot1.png</screenshot>
+    <dependencies>
+        <nextcloud min-version="25" max-version="28"/>
+        <php min-version="8.0" max-version="8.2"/>
+        <database>pgsql</database>
+    </dependencies>
+    <navigations>
+        <navigation>
+            <name>SwissAirDry</name>
+            <route>swissairdry.page.index</route>
+            <icon>app.svg</icon>
+            <order>77</order>
+        </navigation>
+    </navigations>
+    <settings>
+        <admin>OCA\SwissAirDry\Settings\Admin</admin>
+        <admin-section>OCA\SwissAirDry\Settings\AdminSection</admin-section>
+    </settings>
+</info>

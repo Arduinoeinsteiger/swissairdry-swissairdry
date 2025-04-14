@@ -1,0 +1,109 @@
+version: '3.8'
+
+services:
+  api:
+    build:
+      context: ./docker-base-api
+    container_name: swissairdry-api
+    restart: always
+    ports:
+      - "5000:5000"
+    depends_on:
+      - db
+      - mqtt
+    environment:
+      - DATABASE_URL=postgresql://swissairdry:${POSTGRES_PASSWORD}@db/swissairdry
+      - APP_SECRET_KEY=${APP_SECRET_KEY}
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY}
+      - JWT_ALGORITHM=${JWT_ALGORITHM}
+      - JWT_ACCESS_TOKEN_EXPIRE_MINUTES=${JWT_ACCESS_TOKEN_EXPIRE_MINUTES}
+      - PRIMARY_API_HOST=${PRIMARY_API_HOST}
+      - PRIMARY_API_PORT=${PRIMARY_API_PORT}
+      - PRIMARY_API_SCHEME=${PRIMARY_API_SCHEME}
+      - BACKUP_API_HOST=${BACKUP_API_HOST}
+      - BACKUP_API_PORT=${BACKUP_API_PORT}
+      - BACKUP_API_SCHEME=${BACKUP_API_SCHEME}
+      - MQTT_HOST=mqtt
+      - MQTT_PORT=1883
+      - MQTT_USERNAME=${MQTT_USERNAME}
+      - MQTT_PASSWORD=${MQTT_PASSWORD}
+      - NEXTCLOUD_URL=${NEXTCLOUD_URL}
+      - NEXTCLOUD_APP_KEY=${NEXTCLOUD_APP_KEY}
+    volumes:
+      - ./data/uploads:/app/uploads
+      - ./data/logs:/app/logs
+    networks:
+      - swissairdry-network
+
+  db:
+    image: postgres:14
+    container_name: swissairdry-db
+    restart: always
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - swissairdry-network
+
+  mqtt:
+    image: eclipse-mosquitto:2
+    container_name: swissairdry-mqtt
+    restart: always
+    ports:
+      - "1883:1883"
+      - "9001:9001"
+    volumes:
+      - ./swissairdry-docker/mosquitto/config:/mosquitto/config
+      - ./data/mosquitto/data:/mosquitto/data
+      - ./data/mosquitto/log:/mosquitto/log
+    networks:
+      - swissairdry-network
+
+  nextcloud:
+    image: nextcloud:25-apache
+    container_name: swissairdry-nextcloud
+    restart: always
+    ports:
+      - "8080:80"
+    depends_on:
+      - nextcloud-db
+    environment:
+      - POSTGRES_HOST=nextcloud-db
+      - POSTGRES_DB=${NEXTCLOUD_POSTGRES_DB}
+      - POSTGRES_USER=${NEXTCLOUD_POSTGRES_USER}
+      - POSTGRES_PASSWORD=${NEXTCLOUD_POSTGRES_PASSWORD}
+      - NEXTCLOUD_ADMIN_USER=${NEXTCLOUD_ADMIN_USER}
+      - NEXTCLOUD_ADMIN_PASSWORD=${NEXTCLOUD_ADMIN_PASSWORD}
+      - NEXTCLOUD_TRUSTED_DOMAINS=${NEXTCLOUD_TRUSTED_DOMAINS}
+    volumes:
+      - nextcloud-data:/var/www/html
+      - ./swissairdry-nextcloud:/var/www/html/custom_apps/swissairdry
+    networks:
+      - swissairdry-network
+
+  nextcloud-db:
+    image: postgres:14
+    container_name: swissairdry-nextcloud-db
+    restart: always
+    environment:
+      - POSTGRES_USER=${NEXTCLOUD_POSTGRES_USER}
+      - POSTGRES_PASSWORD=${NEXTCLOUD_POSTGRES_PASSWORD}
+      - POSTGRES_DB=${NEXTCLOUD_POSTGRES_DB}
+    volumes:
+      - nextcloud-db-data:/var/lib/postgresql/data
+    networks:
+      - swissairdry-network
+
+networks:
+  swissairdry-network:
+    driver: bridge
+
+volumes:
+  postgres-data:
+  nextcloud-data:
+  nextcloud-db-data:

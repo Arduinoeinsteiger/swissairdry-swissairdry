@@ -69,7 +69,7 @@ def check_api_availability(host: str, port: int, scheme: str, prefix: str) -> bo
         return False
 
 
-def get_active_api_server() -> Dict[str, str]:
+def get_active_api_server() -> Dict[str, Union[str, int]]:
     """
     Gibt den aktiven API-Server zurück und wechselt bei Bedarf automatisch zwischen
     dem primären und dem Backup-Server.
@@ -176,7 +176,7 @@ def is_using_backup_server() -> bool:
     return _using_backup_server
 
 
-def get_api_status() -> Dict[str, str]:
+def get_api_status() -> Dict[str, Union[str, bool]]:
     """
     Gibt den Status der API-Server zurück.
     

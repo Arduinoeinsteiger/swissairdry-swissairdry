@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SwissAirDry</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div id="app">
+    <header>
+      <div class="logo">
+        <img src="logo.svg" alt="SwissAirDry Logo">
+        <h1>SwissAirDry</h1>
+      </div>
+      <nav>
+        <ul>
+          <li><a href="#dashboard">Dashboard</a></li>
+          <li><a href="#devices">Geräte</a></li>
+          <li><a href="#jobs">Aufträge</a></li>
+          <li><a href="#reports">Berichte</a></li>
+          <li><a href="#settings">Einstellungen</a></li>
+        </ul>
+      </nav>
+      <div class="user-info">
+        <span class="username">Angemeldet als: Benutzer</span>
+        <button id="logout-btn">Abmelden</button>
+      </div>
+    </header>
+
+    <main>
+      <section id="dashboard" class="active-section">
+        <h2>Dashboard</h2>
+        <div class="dashboard-stats">
+          <div class="stat-card">
+            <h3>Aktive Geräte</h3>
+            <div class="stat-value">12</div>
+            <div class="stat-detail">von 20 Geräten gesamt</div>
+          </div>
+          <div class="stat-card">
+            <h3>Laufende Aufträge</h3>
+            <div class="stat-value">4</div>
+            <div class="stat-detail">3 planmäßig, 1 verspätet</div>
+          </div>
+          <div class="stat-card">
+            <h3>Luftfeuchtigkeit</h3>
+            <div class="stat-value">42%</div>
+            <div class="stat-detail">Durchschnitt aller Sensoren</div>
+          </div>
+          <div class="stat-card">
+            <h3>Temperatur</h3>
+            <div class="stat-value">22.5°C</div>
+            <div class="stat-detail">Durchschnitt aller Sensoren</div>
+          </div>
+        </div>
+        
+        <div class="chart-container">
+          <h3>Verlauf der letzten 7 Tage</h3>
+          <div class="chart-placeholder">
+            Chart wird geladen...
+          </div>
+        </div>
+        
+        <div class="recent-alerts">
+          <h3>Aktuelle Meldungen</h3>
+          <ul class="alert-list">
+            <li class="alert warning">
+              <span class="alert-time">10:15</span>
+              <span class="alert-message">Gerät #1042 zeigt erhöhte Luftfeuchtigkeit</span>
+            </li>
+            <li class="alert error">
+              <span class="alert-time">08:22</span>
+              <span class="alert-message">Verbindung zu Gerät #1055 verloren</span>
+            </li>
+            <li class="alert info">
+              <span class="alert-time">Gestern</span>
+              <span class="alert-message">Routinewartung für 3 Geräte geplant</span>
+            </li>
+          </ul>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <div class="api-status">
+        API-Status: <span class="status-indicator online">Online</span>
+      </div>
+      <div class="copyright">
+        &copy; 2023-2025 Swiss Air Dry Team
+      </div>
+    </footer>
+  </div>
+  
+  <script src="app.js"></script>
+</body>
+</html>

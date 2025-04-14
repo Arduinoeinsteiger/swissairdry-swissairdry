@@ -1,0 +1,54 @@
+FROM php:8.1-apache
+
+# Install dependencies
+RUN apt-get update && apt-get install -y \
+    libmosquitto-dev \
+    libpq-dev \
+    git \
+    unzip \
+    libzip-dev \
+    libxml2-dev \
+    libpng-dev \
+    libjpeg-dev \
+    libfreetype6-dev \
+    && docker-php-ext-install \
+        pdo \
+        pdo_pgsql \
+        zip \
+        xml \
+        soap \
+        gd \
+    && docker-php-ext-install sockets \
+    && pecl install Mosquitto-0.4.0 \
+    && docker-php-ext-enable mosquitto
+
+# Configure Apache
+RUN a2enmod rewrite
+
+# Copy app files
+COPY . /app
+WORKDIR /app
+
+# Install composer dependencies
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+RUN composer install --no-dev
+
+# Set permissions
+RUN chown -R www-data:www-data /app
+
+# Environment variables
+ENV MQTT_BROKER=swissairdry-mqtt \
+    MQTT_PORT=1883 \
+    API_URL=http://swissairdry-api:5000
+
+# Add health check script
+COPY health-check.php /app/
+RUN chmod +x /app/health-check.php
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD php /app/health-check.php || exit 1
+
+EXPOSE 80
+
+CMD ["apache2-foreground"]

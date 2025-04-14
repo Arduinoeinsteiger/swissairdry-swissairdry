@@ -17,7 +17,7 @@ Funktionen:
     <licence>agpl</licence>
     <author mail="info@swissairdry.com">Swiss Air Dry Team</author>
     <namespace>SwissAirDry</namespace>
-    <category>office</category>
+    <category>monitoring</category>
     <category>tools</category>
     <category>integration</category>
     <website>https://swissairdry.com</website>
@@ -25,10 +25,15 @@ Funktionen:
     <repository>https://github.com/swissairdry/swissairdry-nextcloud</repository>
     <screenshot>https://swissairdry.com/screenshots/screenshot1.png</screenshot>
     <dependencies>
-        <nextcloud min-version="25" max-version="28"/>
+        <nextcloud min-version="25" max-version="31"/>
         <php min-version="8.0" max-version="8.2"/>
         <database>pgsql</database>
     </dependencies>
+    <repair-steps>
+        <install>
+            <step>OCA\SwissAirDry\Migration\InstallStep</step>
+        </install>
+    </repair-steps>
     <navigations>
         <navigation>
             <name>SwissAirDry</name>

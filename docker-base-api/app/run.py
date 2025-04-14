@@ -10,20 +10,47 @@ Hauptmodul zum Starten des SwissAirDry API-Servers.
 
 import os
 import uvicorn
-from fastapi import FastAPI, Request
+import asyncio
+import logging
+from fastapi import FastAPI, Request, Depends
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
+from fastapi.middleware.cors import CORSMiddleware
 from dotenv import load_dotenv
+
+# Import der Router
+try:
+    from routers import routers
+except ImportError:
+    routers = []
+
+# Import der Konfiguration
+try:
+    import config
+except ImportError:
+    config = None
 
 # Umgebungsvariablen laden
 load_dotenv()
+
+# Logger einrichten
+logger = logging.getLogger("swissairdry")
 
 # FastAPI-Anwendung erstellen
 app = FastAPI(
     title="SwissAirDry API",
     description="REST API für das SwissAirDry-System zur Bautrocknung",
     version="1.0.0"
+)
+
+# CORS-Middleware hinzufügen
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # In Produktion einschränken
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 # Verzeichnisse für Templates und statische Dateien
@@ -39,7 +66,42 @@ try:
     templates = Jinja2Templates(directory=templates_dir)
     app.mount("/static", StaticFiles(directory=static_dir), name="static")
 except Exception as e:
-    print(f"Warnung: Konnte Templates oder statische Dateien nicht einrichten: {e}")
+    logger.warning(f"Konnte Templates oder statische Dateien nicht einrichten: {e}")
+
+# Router registrieren
+for router in routers:
+    app.include_router(router)
+
+# Hintergrundaufgabe für API Server Health Checks
+async def check_primary_server_availability():
+    """
+    Hintergrundaufgabe, die regelmäßig prüft, ob der primäre API-Server 
+    verfügbar ist, und bei Bedarf automatisch umschaltet.
+    """
+    if not config:
+        logger.warning("Konfiguration nicht verfügbar, API Server Health Checks deaktiviert")
+        return
+        
+    while True:
+        try:
+            # Aktuellen API-Server prüfen und ggf. umschalten
+            config.get_active_api_server()
+            # Status protokollieren
+            status = config.get_api_status()
+            if config.is_using_backup_server():
+                logger.info(f"Verwende Backup-Server: {config.BACKUP_API_HOST}")
+            await asyncio.sleep(60)  # Alle 60 Sekunden prüfen
+        except Exception as e:
+            logger.error(f"Fehler bei der Überprüfung der API-Server: {e}")
+            await asyncio.sleep(60)  # Bei Fehler trotzdem warten
+
+@app.on_event("startup")
+async def startup_event():
+    """Wird beim Start der Anwendung aufgerufen."""
+    # Hintergrundaufgabe für API Server Health Checks starten
+    if config:
+        asyncio.create_task(check_primary_server_availability())
+        logger.info("API Server Health Checks gestartet")
 
 @app.get("/", response_class=HTMLResponse)
 async def root(request: Request):

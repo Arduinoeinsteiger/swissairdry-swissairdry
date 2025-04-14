@@ -1,15 +1,18 @@
 package com.swissairdry.mobile.di
 
+import android.content.Context
+import android.content.SharedPreferences
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.swissairdry.mobile.BuildConfig
 import com.swissairdry.mobile.api.ApiService
-import com.swissairdry.mobile.data.preferences.UserPreferencesRepository
+import com.swissairdry.mobile.api.AuthInterceptor
+import com.swissairdry.mobile.api.NetworkFailoverInterceptor
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
-import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
@@ -18,70 +21,31 @@ import java.util.concurrent.TimeUnit
 import javax.inject.Singleton
 
 /**
- * NetworkModule - Hilt-Modul für Netzwerkabhängigkeiten
- *
- * Dieses Modul stellt die Netzwerkkomponenten wie Retrofit und OkHttpClient
- * für Dependency Injection zur Verfügung.
- * 
- * @author Swiss Air Dry Team <info@swissairdry.com>
- * @copyright 2023-2025 Swiss Air Dry Team
+ * Hilt-Modul zur Bereitstellung von Netzwerkkomponenten.
  */
 @Module
 @InstallIn(SingletonComponent::class)
 object NetworkModule {
 
-    @Singleton
+    /**
+     * Stellt das OkHttpClient-Objekt bereit.
+     */
     @Provides
-    fun provideGson(): Gson {
-        return GsonBuilder()
-            .setDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
-            .create()
-    }
-
     @Singleton
-    @Provides
-    fun provideHttpLoggingInterceptor(): HttpLoggingInterceptor {
-        val loggingInterceptor = HttpLoggingInterceptor()
-        if (BuildConfig.DEBUG) {
-            loggingInterceptor.level = HttpLoggingInterceptor.Level.BODY
-        } else {
-            loggingInterceptor.level = HttpLoggingInterceptor.Level.NONE
-        }
-        return loggingInterceptor
-    }
-
-    @Singleton
-    @Provides
-    fun provideAuthInterceptor(userPreferencesRepository: UserPreferencesRepository): Interceptor {
-        return Interceptor { chain ->
-            val token = userPreferencesRepository.getAuthToken()
-            val originalRequest = chain.request()
-            
-            // Wenn bereits ein Authorization-Header vorhanden ist, diesen nicht überschreiben
-            if (originalRequest.header("Authorization") != null) {
-                return@Interceptor chain.proceed(originalRequest)
-            }
-            
-            // Token zum Request hinzufügen, wenn verfügbar
-            val request = if (token.isNotBlank()) {
-                originalRequest.newBuilder()
-                    .header("Authorization", "Bearer $token")
-                    .build()
-            } else {
-                originalRequest
-            }
-            
-            chain.proceed(request)
-        }
-    }
-
-    @Singleton
-    @Provides
     fun provideOkHttpClient(
-        loggingInterceptor: HttpLoggingInterceptor,
-        authInterceptor: Interceptor
+        authInterceptor: AuthInterceptor,
+        networkFailoverInterceptor: NetworkFailoverInterceptor
     ): OkHttpClient {
+        val loggingInterceptor = HttpLoggingInterceptor().apply {
+            level = if (BuildConfig.DEBUG) {
+                HttpLoggingInterceptor.Level.BODY
+            } else {
+                HttpLoggingInterceptor.Level.NONE
+            }
+        }
+
         return OkHttpClient.Builder()
+            .addInterceptor(networkFailoverInterceptor) // Wichtig: Als erstes hinzufügen!
             .addInterceptor(authInterceptor)
             .addInterceptor(loggingInterceptor)
             .connectTimeout(30, TimeUnit.SECONDS)
@@ -90,19 +54,47 @@ object NetworkModule {
             .build()
     }
 
-    @Singleton
+    /**
+     * Stellt das Gson-Objekt bereit.
+     */
     @Provides
-    fun provideRetrofit(gson: Gson, okHttpClient: OkHttpClient): Retrofit {
+    @Singleton
+    fun provideGson(): Gson {
+        return GsonBuilder()
+            .setDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'")
+            .create()
+    }
+
+    /**
+     * Stellt das Retrofit-Objekt bereit.
+     * Die Basis-URL wird nur als Platzhalter verwendet, da der tatsächliche Server
+     * durch den NetworkFailoverInterceptor bestimmt wird.
+     */
+    @Provides
+    @Singleton
+    fun provideRetrofit(okHttpClient: OkHttpClient, gson: Gson): Retrofit {
         return Retrofit.Builder()
-            .baseUrl(BuildConfig.API_BASE_URL)
+            .baseUrl(BuildConfig.PRIMARY_API_SCHEME + "://" + BuildConfig.PRIMARY_API_HOST + ":" + BuildConfig.PRIMARY_API_PORT)
             .client(okHttpClient)
             .addConverterFactory(GsonConverterFactory.create(gson))
             .build()
     }
 
-    @Singleton
+    /**
+     * Stellt den ApiService bereit.
+     */
     @Provides
+    @Singleton
     fun provideApiService(retrofit: Retrofit): ApiService {
         return retrofit.create(ApiService::class.java)
+    }
+
+    /**
+     * Stellt die SharedPreferences bereit.
+     */
+    @Provides
+    @Singleton
+    fun provideSharedPreferences(@ApplicationContext context: Context): SharedPreferences {
+        return context.getSharedPreferences("swissairdry_preferences", Context.MODE_PRIVATE)
     }
 }

@@ -1,54 +1,54 @@
-# SwissAirDry System
+# SwissAirDry Projekt
 
-Das SwissAirDry System ist eine umfassende Lösung für die Verwaltung von Trocknungsgeräten, Kundendaten, Aufträgen und Messwerten für Trocknungsspezialisten und Projektleiter im Bereich der Bautrocknung.
+## Überblick
 
-## Projektstruktur
+SwissAirDry ist eine umfassende Lösung für die Verwaltung von Trocknungsgeräten und Feldservice-Operationen mit IoT-Integration. Das Projekt umfasst eine API-Server-Komponente, eine Weboberfläche, eine Nextcloud-Integration und eine Android-Mobilanwendung.
 
-Das Projekt ist in vier Hauptkomponenten unterteilt:
+## Aufgeräumte Projektstruktur
 
-1. **SwissAirDry APK (`swissairdry-apk/`)**: 
-   Die mobile Android-Anwendung für Feldtechniker und Projektleiter.
+Das Projekt wurde in eine aufgeräumte, modulare Struktur reorganisiert:
 
-2. **SwissAirDry Docker (`swissairdry-docker/`)**: 
-   Docker-Konfigurationen für die einfache Bereitstellung des gesamten Systems.
+```
+swissairdry/
+├── api/                # FastAPI Backend-Server
+├── app/                # Web-Frontend 
+├── nextcloud/          # Nextcloud-Integration
+├── mobile/             # Android-App
+├── docs/               # Dokumentation
+├── docker-compose.yml  # Docker-Konfiguration
+└── .env.example        # Beispiel-Umgebungsvariablen
+```
 
-3. **SwissAirDry Nextcloud (`swissairdry-nextcloud/`)**: 
-   Integration mit Nextcloud für die Dateiverwaltung und Benutzerauthentifizierung.
+## Schnellstart
 
-4. **SwissAirDry Server (`swissairdry-server/`)**: 
-   Der Backend-Server mit API-Endpunkten, Datenbankmodellen und Geschäftslogik.
+1. Ins Projektverzeichnis wechseln:
+   ```
+   cd swissairdry
+   ```
 
-## Installations- und Entwicklungsanleitungen
+2. Umgebungsvariablen konfigurieren:
+   ```
+   cp .env.example .env
+   # .env-Datei nach Bedarf anpassen
+   ```
 
-Detaillierte Anleitungen finden Sie in den jeweiligen README-Dateien der Teilkomponenten:
+3. Docker-Container starten:
+   ```
+   docker-compose up -d
+   ```
 
-- [Android-App Entwicklungsanleitung](swissairdry-apk/ENTWICKLUNG.md)
-- [Server-Konfiguration](swissairdry-server/README.md)
-- [Nextcloud-Integration](swissairdry-nextcloud/README.md)
-- [Docker-Deployment](swissairdry-docker/docker-compose.yml)
+4. Die Anwendung ist nun verfügbar unter:
+   - API: http://localhost:5000
+   - Nextcloud App: http://localhost:8080
 
-## Technologie-Stack
+## Dokumentation
 
-- **Backend**: FastAPI (Python), SQLAlchemy, PostgreSQL
-- **Frontend**: Android (Kotlin), Vue.js (für Weboberflächen)
-- **IoT**: MQTT, ESP32-Firmware
-- **Integration**: Nextcloud, Bexio API
-- **Deployment**: Docker, Docker Compose
+Weitere Details finden Sie in der Dokumentation:
 
-## ESP32 Firmware
+- [Projektübersicht](swissairdry/docs/PROJEKT_UEBERSICHT.md)
+- [Installationsanleitung](swissairdry/docs/INSTALLATION_ANLEITUNG.md)
+- [Fehlerbehebung](swissairdry/docs/FEHLERBEHEBUNG.md)
 
-Die Firmware für ESP32-basierte IoT-Geräte befindet sich im Verzeichnis `swissairdry-server/esp32/`. Sie ermöglicht die direkte Kommunikation zwischen den Trocknungsgeräten und dem Backend-Server über MQTT.
+## Hinweis
 
-## Funktionsübersicht
-
-- Echtzeit-Überwachung von Trocknungsgeräten
-- Verwaltung von Kundendaten und Aufträgen
-- Erfassung von Messungen und Erstellung von Berichten mit Fotos
-- Energiekostenberechnung
-- Bexio API-Integration für die Abrechnung
-- Nextcloud-Integration für Dateiverwaltung
-- IoT-Gerätekommunikation über MQTT
-
-## Lizenz
-
-Copyright (c) 2023-2025 Swiss Air Dry Team. Alle Rechte vorbehalten.
+Dies ist die aufgeräumte Version des SwissAirDry-Projekts. Die ursprünglichen Ordner sind weiterhin vorhanden, werden aber nicht mehr aktiv verwendet.

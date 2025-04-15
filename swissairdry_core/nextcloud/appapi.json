@@ -1,23 +1,31 @@
 {
     "id": "swissairdry",
     "name": "SwissAirDry",
-    "version": "1.0.0",
-    "description": "SwissAirDry App für Nextcloud",
+    "version": "1.1.0",
+    "description": "SwissAirDry App für Nextcloud - Trocknungsgeräte-Management",
     "author": "Swiss Air Dry Team",
     "namespace": "SwissAirDry",
     "category": "monitoring",
+    "summary": "Umfassende Lösung für die Verwaltung von Trocknungsgeräten und Feldservice-Operationen",
+    "website": "https://vgnc.org",
+    "bugs": "https://github.com/Arduinoeinsteiger/NextcloudCollaborationreplit/issues",
+    "dependencies": {
+        "nextcloud": ">=25.0.0"
+    },
     "containers": [
         {
             "name": "app",
-            "image": "swissairdry-app",
+            "image": "nextcloud:latest",
             "ports": ["80:80"],
             "volumes": [
                 "/var/www/html:/app"
             ],
             "environment": {
-                "MQTT_BROKER": "swissairdry-mqtt",
-                "MQTT_PORT": "1883",
-                "API_URL": "http://swissairdry-api:5000"
+                "MQTT_BROKER": "${MQTT_BROKER}",
+                "MQTT_PORT": "${MQTT_PORT}",
+                "API_URL": "${API_URL}",
+                "NEXTCLOUD_TRUSTED_DOMAINS": "localhost,vgnc.org,api.vgnc.org",
+                "PHP_MEMORY_LIMIT": "512M"
             },
             "depends_on": [
                 "mqtt",
@@ -27,26 +35,68 @@
         {
             "name": "mqtt",
             "image": "eclipse-mosquitto:2",
-            "ports": ["1883:1883"],
+            "ports": ["1883:1883", "9001:9001"],
             "volumes": [
-                "./mosquitto/config:/mosquitto/config"
+                "./mqtt/config:/mosquitto/config",
+                "./mqtt/data:/mosquitto/data",
+                "./mqtt/log:/mosquitto/log"
             ]
         },
         {
             "name": "api",
-            "image": "swissairdry-api",
+            "image": "fastapi:latest",
             "ports": ["5000:5000"],
             "environment": {
-                "MQTT_BROKER": "swissairdry-mqtt",
+                "MQTT_BROKER": "mqtt",
                 "MQTT_PORT": "1883",
-                "DATABASE_URL": "postgresql://swissairdry:${POSTGRES_PASSWORD}@db/swissairdry"
-            }
+                "DATABASE_URL": "postgresql://swissairdry:swissairdry@postgres/swissairdry",
+                "API_HOST": "0.0.0.0",
+                "API_PORT": "5000",
+                "API_PREFIX": "/api/v1",
+                "LOG_LEVEL": "info"
+            },
+            "depends_on": [
+                "postgres"
+            ]
+        },
+        {
+            "name": "postgres",
+            "image": "postgres:13",
+            "ports": ["5432:5432"],
+            "environment": {
+                "POSTGRES_USER": "swissairdry",
+                "POSTGRES_PASSWORD": "swissairdry",
+                "POSTGRES_DB": "swissairdry"
+            },
+            "volumes": [
+                "postgres-data:/var/lib/postgresql/data"
+            ]
         }
     ],
     "init_scripts": [
         {
-            "script": "php /app/occ maintenance:install",
+            "script": "php /app/occ maintenance:install --admin-user admin --admin-pass admin",
             "container": "app"
+        },
+        {
+            "script": "php /app/occ app:enable swissairdry",
+            "container": "app"
+        }
+    ],
+    "volumes": [
+        {
+            "name": "postgres-data",
+            "driver": "local"
+        },
+        {
+            "name": "nextcloud-data",
+            "driver": "local"
+        }
+    ],
+    "networks": [
+        {
+            "name": "swissairdry_network",
+            "driver": "bridge"
         }
     ]
 }

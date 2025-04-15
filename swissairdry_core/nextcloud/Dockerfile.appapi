@@ -1,4 +1,4 @@
-FROM php:8.1-apache
+FROM php:8.2-apache
 
 # Install dependencies
 RUN apt-get update && apt-get install -y \
@@ -11,6 +11,8 @@ RUN apt-get update && apt-get install -y \
     libpng-dev \
     libjpeg-dev \
     libfreetype6-dev \
+    libicu-dev \
+    && docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install \
         pdo \
         pdo_pgsql \
@@ -18,12 +20,26 @@ RUN apt-get update && apt-get install -y \
         xml \
         soap \
         gd \
+        intl \
+        opcache \
     && docker-php-ext-install sockets \
     && pecl install Mosquitto-0.4.0 \
     && docker-php-ext-enable mosquitto
 
+# Set PHP settings
+RUN { \
+        echo 'opcache.memory_consumption=128'; \
+        echo 'opcache.interned_strings_buffer=8'; \
+        echo 'opcache.max_accelerated_files=4000'; \
+        echo 'opcache.revalidate_freq=2'; \
+        echo 'opcache.fast_shutdown=1'; \
+        echo 'upload_max_filesize=1G'; \
+        echo 'post_max_size=1G'; \
+        echo 'memory_limit=512M'; \
+    } > /usr/local/etc/php/conf.d/optimization.ini
+
 # Configure Apache
-RUN a2enmod rewrite
+RUN a2enmod rewrite headers
 
 # Copy app files
 COPY . /app
@@ -31,15 +47,17 @@ WORKDIR /app
 
 # Install composer dependencies
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
-RUN composer install --no-dev
+RUN composer install --no-dev --optimize-autoloader
 
 # Set permissions
 RUN chown -R www-data:www-data /app
 
 # Environment variables
-ENV MQTT_BROKER=swissairdry-mqtt \
-    MQTT_PORT=1883 \
-    API_URL=http://swissairdry-api:5000
+ENV MQTT_BROKER=${MQTT_BROKER} \
+    MQTT_PORT=${MQTT_PORT} \
+    API_URL=${API_URL} \
+    NEXTCLOUD_TRUSTED_DOMAINS="localhost,vgnc.org,api.vgnc.org" \
+    PHP_MEMORY_LIMIT="512M"
 
 # Add health check script
 COPY health-check.php /app/

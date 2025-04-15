@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<full-backup-content>
+    <!-- Exclude specific shared preferences that contain sensitive information -->
+    <exclude
+        domain="sharedpref"
+        path="auth_preferences.xml" />
+    <exclude
+        domain="sharedpref"
+        path="com.swissairdry.mobile.auth.xml" />
+</full-backup-content>

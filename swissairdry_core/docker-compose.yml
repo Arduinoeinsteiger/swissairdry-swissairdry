@@ -1,0 +1,101 @@
+version: '3'
+
+services:
+  api:
+    build: ./api
+    ports:
+      - "5000:5000"
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_HOST=${POSTGRES_HOST}
+      - POSTGRES_PORT=${POSTGRES_PORT}
+      - MQTT_BROKER=${MQTT_BROKER}
+      - MQTT_PORT=${MQTT_PORT}
+      - MQTT_USERNAME=${MQTT_USERNAME}
+      - MQTT_PASSWORD=${MQTT_PASSWORD}
+      - MQTT_TOPIC_PREFIX=${MQTT_TOPIC_PREFIX}
+      - NEXTCLOUD_URL=${NEXTCLOUD_URL}
+      - FEATURE_NEXTCLOUD_ENABLED=${FEATURE_NEXTCLOUD_ENABLED}
+    depends_on:
+      - postgres
+      - mqtt
+    networks:
+      - swissairdry_network
+    restart: always
+    volumes:
+      - ./api:/app
+
+  postgres:
+    image: postgres:13
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - swissairdry_network
+    restart: always
+
+  mqtt:
+    image: eclipse-mosquitto:2
+    ports:
+      - "1883:1883"
+      - "9001:9001"
+    volumes:
+      - ./mqtt/config:/mosquitto/config
+      - ./mqtt/data:/mosquitto/data
+      - ./mqtt/log:/mosquitto/log
+    networks:
+      - swissairdry_network
+    restart: always
+
+  nextcloud:
+    image: nextcloud:latest
+    ports:
+      - "8080:80"
+    volumes:
+      - nextcloud-data:/var/www/html
+      - ./nextcloud:/var/www/html/apps/swissairdry
+    environment:
+      - MYSQL_HOST=db
+      - MYSQL_DATABASE=nextcloud
+      - MYSQL_USER=nextcloud
+      - MYSQL_PASSWORD=nextcloud
+    depends_on:
+      - db
+    networks:
+      - swissairdry_network
+    restart: always
+
+  db:
+    image: mariadb:10
+    command: --transaction-isolation=READ-COMMITTED --binlog-format=ROW
+    volumes:
+      - db-data:/var/lib/mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=nextcloud
+      - MYSQL_DATABASE=nextcloud
+      - MYSQL_USER=nextcloud
+      - MYSQL_PASSWORD=nextcloud
+    networks:
+      - swissairdry_network
+    restart: always
+
+networks:
+  swissairdry_network:
+    driver: bridge
+
+volumes:
+  postgres-data:
+    driver: local
+  nextcloud-data:
+    driver: local
+  db-data:
+    driver: local
+  mqtt-data:
+    driver: local

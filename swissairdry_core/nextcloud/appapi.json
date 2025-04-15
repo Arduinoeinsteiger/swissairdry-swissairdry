@@ -1,0 +1,52 @@
+{
+    "id": "swissairdry",
+    "name": "SwissAirDry",
+    "version": "1.0.0",
+    "description": "SwissAirDry App für Nextcloud",
+    "author": "Swiss Air Dry Team",
+    "namespace": "SwissAirDry",
+    "category": "monitoring",
+    "containers": [
+        {
+            "name": "app",
+            "image": "swissairdry-app",
+            "ports": ["80:80"],
+            "volumes": [
+                "/var/www/html:/app"
+            ],
+            "environment": {
+                "MQTT_BROKER": "swissairdry-mqtt",
+                "MQTT_PORT": "1883",
+                "API_URL": "http://swissairdry-api:5000"
+            },
+            "depends_on": [
+                "mqtt",
+                "api"
+            ]
+        },
+        {
+            "name": "mqtt",
+            "image": "eclipse-mosquitto:2",
+            "ports": ["1883:1883"],
+            "volumes": [
+                "./mosquitto/config:/mosquitto/config"
+            ]
+        },
+        {
+            "name": "api",
+            "image": "swissairdry-api",
+            "ports": ["5000:5000"],
+            "environment": {
+                "MQTT_BROKER": "swissairdry-mqtt",
+                "MQTT_PORT": "1883",
+                "DATABASE_URL": "postgresql://swissairdry:${POSTGRES_PASSWORD}@db/swissairdry"
+            }
+        }
+    ],
+    "init_scripts": [
+        {
+            "script": "php /app/occ maintenance:install",
+            "container": "app"
+        }
+    ]
+}

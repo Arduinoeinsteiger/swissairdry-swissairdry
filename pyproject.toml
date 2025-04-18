@@ -20,6 +20,7 @@ dependencies = [
     "pydantic>=2.11.3",
     "python-dotenv>=1.1.0",
     "python-multipart>=0.0.20",
+    "qrcode>=8.1",
     "requests>=2.32.3",
     "sqlalchemy>=2.0.40",
     "trafilatura>=2.0.0",

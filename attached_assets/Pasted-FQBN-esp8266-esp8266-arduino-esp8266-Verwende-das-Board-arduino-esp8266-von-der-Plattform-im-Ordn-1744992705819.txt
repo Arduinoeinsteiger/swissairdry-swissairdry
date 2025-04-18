@@ -1,0 +1,22 @@
+FQBN: esp8266:esp8266:arduino-esp8266
+Verwende das Board 'arduino-esp8266' von der Plattform im Ordner: C:\Users\gobet\AppData\Local\Arduino15\packages\esp8266\hardware\esp8266\3.1.2
+Verwendung des Kerns 'esp8266' von Platform im Ordner: C:\Users\gobet\AppData\Local\Arduino15\packages\esp8266\hardware\esp8266\3.1.2
+
+"C:\\Users\\gobet\\AppData\\Local\\Arduino15\\packages\\esp8266\\tools\\python3\\3.7.2-post1/python3" -I "C:\\Users\\gobet\\AppData\\Local\\Arduino15\\packages\\esp8266\\hardware\\esp8266\\3.1.2/tools/mkbuildoptglobals.py" "C:\\Program Files\\Arduino IDE\\resources\\app\\lib\\backend\\resources" 10607 "C:\\Users\\gobet\\AppData\\Local\\arduino\\sketches\\9667792305B820236BAB23C836D8AA04" "C:\\Users\\gobet\\AppData\\Local\\arduino\\sketches\\9667792305B820236BAB23C836D8AA04/core/build.opt" "C:\\Users\\gobet\\OneDrive\\Desktop\\SwissAirDry_ESP32_Simple_OTA/SwissAirDry_ESP32_Simple_OTA.ino.globals.h" "C:\\Users\\gobet\\AppData\\Local\\Arduino15\\packages\\esp8266\\hardware\\esp8266\\3.1.2\\cores\\esp8266/CommonHFile.h"
+default_encoding:       cp1252
+Assume aggressive 'core.a' caching enabled.
+Clean build, created dir C:\Users\gobet\AppData\Local\arduino\sketches\9667792305B820236BAB23C836D8AA04\core
+Note: optional global include file 'C:\Users\gobet\OneDrive\Desktop\SwissAirDry_ESP32_Simple_OTA\SwissAirDry_ESP32_Simple_OTA.ino.globals.h' does not exist.
+  Read more at https://arduino-esp8266.readthedocs.io/en/latest/faq/a06-global-build-options.html
+Verwendete Bibliotheken erkennen ...
+C:\Users\gobet\AppData\Local\Arduino15\packages\esp8266\tools\xtensa-lx106-elf-gcc\3.1.0-gcc10.3-e5f9fec/bin/xtensa-lx106-elf-g++ -D__ets__ -DICACHE_FLASH -U__STRICT_ANSI__ -D_GNU_SOURCE -DESP8266 @C:\Users\gobet\AppData\Local\arduino\sketches\9667792305B820236BAB23C836D8AA04/core/build.opt -IC:\Users\gobet\AppData\Local\Arduino15\packages\esp8266\hardware\esp8266\3.1.2/tools/sdk/include -IC:\Users\gobet\AppData\Local\Arduino15\packages\esp8266\hardware\esp8266\3.1.2/tools/sdk/lwip2/include -IC:\Users\gobet\AppData\Local\Arduino15\packages\esp8266\hardware\esp8266\3.1.2/tools/sdk/libc/xtensa-lx106-elf/include -IC:\Users\gobet\AppData\Local\arduino\sketches\9667792305B820236BAB23C836D8AA04/core -c @C:\Users\gobet\AppData\Local\Arduino15\packages\esp8266\hardware\esp8266\3.1.2/tools/warnings/none-cppflags -Os -g -free -fipa-pta -Werror=return-type -mlongcalls -mtext-section-literals -fno-rtti -falign-functions=4 -std=gnu++17 -ffunction-sections -fdata-sections -fno-exceptions -DMMU_IRAM_SIZE=0x8000 -DMMU_ICACHE_SIZE=0x8000 -w -x c++ -E -CC -DNONOSDK22x_190703=1 -DF_CPU=80000000L -DLWIP_OPEN_SRC -DTCP_MSS=536 -DLWIP_FEATURES=1 -DLWIP_IPV6=0 -DARDUINO=10607 -DARDUINO_ESP8266_ARDUINO_PRIMO -DARDUINO_ARCH_ESP8266 -DARDUINO_BOARD="ESP8266_ARDUINO_PRIMO" -DARDUINO_BOARD_ID="arduino-esp8266" -DFLASHMODE_QIO -DF_CRYSTAL=40000000 -IC:\Users\gobet\AppData\Local\Arduino15\packages\esp8266\hardware\esp8266\3.1.2\cores\esp8266 -IC:\Users\gobet\AppData\Local\Arduino15\packages\esp8266\hardware\esp8266\3.1.2\variants\arduino_spi C:\Users\gobet\AppData\Local\arduino\sketches\9667792305B820236BAB23C836D8AA04\sketch\SwissAirDry_ESP32_Simple_OTA.ino.cpp -o nul
+C:\Users\gobet\OneDrive\Desktop\SwissAirDry_ESP32_Simple_OTA\SwissAirDry_ESP32_Simple_OTA.ino:5:10: fatal error: WiFi.h: No such file or directory
+    5 | #include <WiFi.h>
+      |          ^~~~~~~~
+compilation terminated.
+Alternativen für WiFi.h: []
+ResolveLibrary(WiFi.h)
+  -> Kandidaten: []
+exit status 1
+
+Compilation error: WiFi.h: No such file or directory

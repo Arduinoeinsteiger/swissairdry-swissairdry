@@ -1,22 +1,29 @@
 /**
- * SwissAirDry ESP32 Test-Sketch für Arduino IDE
+ * SwissAirDry ESP32 Test-Sketch für Arduino IDE mit OTA-Updates
  * 
- * Dieses einfache Testprogramm hilft zu überprüfen, ob Ihr ESP32 korrekt funktioniert,
- * bevor Sie die vollständige SwissAirDry-Firmware flashen.
+ * Dieses Testprogramm hilft zu überprüfen, ob Ihr ESP32 korrekt funktioniert
+ * und ermöglicht auch Updates über WLAN (OTA - Over-the-Air).
  * 
  * @author Swiss Air Dry Team <info@swissairdry.com>
  * @copyright 2023-2025 Swiss Air Dry Team
- * @version 1.0.0
+ * @version 1.0.1
  */
 
 #include <WiFi.h>
 #include <PubSubClient.h>
 #include <DHT.h>
+#include <ESPmDNS.h>
+#include <WiFiUdp.h>
+#include <ArduinoOTA.h>
 
 // ------ KONFIGURATION ------
 // WLAN-Einstellungen
 const char* ssid = ""; // Hier Ihren WLAN-Namen eintragen
 const char* password = ""; // Hier Ihr WLAN-Passwort eintragen
+
+// OTA-Einstellungen
+const char* hostname = "swissairdry-esp32"; // Hostname für OTA-Updates
+const char* ota_password = "swissairdry";   // Passwort für OTA-Updates
 
 // MQTT-Einstellungen (Optional)
 const char* mqtt_server = "mqtt.vgnc.org";
@@ -56,7 +63,7 @@ void setup() {
   Serial.println();
   Serial.println("=============================================");
   Serial.println("SwissAirDry ESP32 Test-Programm");
-  Serial.println("Version: 1.0.0");
+  Serial.println("Version: 1.0.1 - mit OTA-Updates");
   Serial.println("=============================================");
   
   // GPIO-Pins initialisieren
@@ -72,11 +79,15 @@ void setup() {
   if (strlen(ssid) > 0) {
     setupWifi();
     
+    // OTA-Updates konfigurieren
+    setupOTA();
+    
     // MQTT-Client konfigurieren
     mqttClient.setServer(mqtt_server, mqtt_port);
     mqttClient.setCallback(mqttCallback);
   } else {
     Serial.println("WLAN-Zugangsdaten nicht konfiguriert. Arbeite im Offline-Modus.");
+    Serial.println("WICHTIG: Für OTA-Updates müssen Sie WLAN-Zugangsdaten eintragen!");
   }
   
   Serial.println("Setup abgeschlossen. Test-Programm läuft...");
@@ -86,6 +97,11 @@ void setup() {
 void loop() {
   // Aktuelle Zeit
   unsigned long currentMillis = millis();
+  
+  // OTA-Updates bearbeiten, wenn WLAN verbunden ist
+  if (WiFi.status() == WL_CONNECTED) {
+    ArduinoOTA.handle();
+  }
   
   // WLAN und MQTT-Verbindung prüfen
   if (strlen(ssid) > 0) {

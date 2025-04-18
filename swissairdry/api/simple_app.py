@@ -8,15 +8,26 @@ Eine vereinfachte Version der SwissAirDry API.
 """
 
 import os
+import json
+import asyncio
+import logging
 from datetime import datetime
 from typing import Dict, Any, List, Optional
 
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, BackgroundTasks
 from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
+
+# Eigene MQTT-Client-Klasse importieren
+try:
+    from mqtt_client import MQTTClient
+except ImportError:
+    # Falls die Datei nicht gefunden wird
+    MQTTClient = None
+    print("MQTT-Client-Modul nicht gefunden. MQTT-Funktionalität deaktiviert.")
 
 # FastAPI-App erstellen
 app = FastAPI(
@@ -102,6 +113,9 @@ api_stats = {
     "error_count": 0,
     "last_request": None,
 }
+
+# MQTT-Client initialisieren
+mqtt_client = None
 
 
 @app.middleware("http")
@@ -257,9 +271,199 @@ class DeviceCommand(BaseModel):
     value: Any
 
 
+@app.on_event("startup")
+async def startup_event():
+    """Wird beim Start der Anwendung aufgerufen."""
+    global mqtt_client
+    
+    print("API-Server wird gestartet...")
+    
+    # MQTT-Client initialisieren, wenn MQTTClient und paho.mqtt.client verfügbar sind
+    if MQTTClient is not None:
+        try:
+            # MQTT-Verbindungsdaten aus Umgebungsvariablen oder Standardwerten
+            mqtt_host = os.getenv("MQTT_HOST", "localhost")
+            mqtt_port = int(os.getenv("MQTT_PORT", "1883"))
+            mqtt_user = os.getenv("MQTT_USER", "")
+            mqtt_password = os.getenv("MQTT_PASSWORD", "")
+            
+            print(f"Verbinde mit MQTT-Broker {mqtt_host}:{mqtt_port}...")
+            mqtt_client = MQTTClient(mqtt_host, mqtt_port, mqtt_user, mqtt_password)
+            
+            # Callback für SwissAirDry-Nachrichten
+            mqtt_client.add_message_callback("swissairdry/#", mqtt_message_handler)
+            
+            # Verbindung herstellen
+            connected = await mqtt_client.connect()
+            if connected:
+                print(f"MQTT-Client verbunden mit {mqtt_host}:{mqtt_port}")
+                
+                # Standard-Themen abonnieren
+                await mqtt_client.subscribe("swissairdry/+/data")
+                await mqtt_client.subscribe("swissairdry/+/status")
+                await mqtt_client.subscribe("swissairdry/+/config")
+            else:
+                print("MQTT-Verbindung fehlgeschlagen")
+        except Exception as e:
+            print(f"Fehler bei der MQTT-Initialisierung: {e}")
+    
+    print("API-Server erfolgreich gestartet")
+
+
+@app.on_event("shutdown")
+async def shutdown_event():
+    """Wird beim Herunterfahren der Anwendung aufgerufen."""
+    global mqtt_client
+    
+    print("API-Server wird heruntergefahren...")
+    
+    # MQTT-Verbindung trennen
+    if mqtt_client and mqtt_client.is_connected():
+        await mqtt_client.disconnect()
+        print("MQTT-Client getrennt")
+
+
+def mqtt_message_handler(topic: str, payload: Any):
+    """
+    Callback-Funktion für MQTT-Nachrichten.
+    
+    Args:
+        topic: MQTT-Thema
+        payload: Nachrichteninhalt (JSON-Objekt oder String)
+    """
+    print(f"MQTT-Nachricht empfangen: {topic}")
+    
+    try:
+        # Topic-Teile extrahieren (swissairdry/device_id/type)
+        topic_parts = topic.split("/")
+        if len(topic_parts) >= 3:
+            device_id = topic_parts[1]
+            message_type = topic_parts[2]
+            
+            if message_type == "data":
+                # Sensordaten verarbeiten
+                if isinstance(payload, dict):
+                    process_sensor_data(device_id, payload)
+                else:
+                    print(f"Ungültiges Payload-Format für Sensordaten: {payload}")
+            
+            elif message_type == "status":
+                # Statusmeldung verarbeiten
+                update_device_status(device_id, payload)
+            
+            elif message_type == "config":
+                # Konfigurationsdaten verarbeiten
+                update_device_config(device_id, payload)
+    
+    except Exception as e:
+        print(f"Fehler bei der Verarbeitung der MQTT-Nachricht: {e}")
+
+
+def process_sensor_data(device_id: str, data: Dict[str, Any]):
+    """
+    Verarbeitet Sensordaten von einem Gerät.
+    
+    Args:
+        device_id: Geräte-ID
+        data: Sensordaten
+    """
+    # Prüfen, ob das Gerät existiert
+    device_exists = False
+    for device in devices:
+        if device["device_id"] == device_id:
+            device_exists = True
+            device["status"] = "online"
+            device["last_seen"] = datetime.now().isoformat()
+            break
+    
+    # Wenn das Gerät nicht existiert, automatisch erstellen
+    if not device_exists:
+        new_device = {
+            "id": len(devices) + 1,
+            "device_id": device_id,
+            "name": f"MQTT Gerät: {device_id}",
+            "type": "standard",
+            "status": "online",
+            "last_seen": datetime.now().isoformat(),
+            "created_at": datetime.now().isoformat(),
+        }
+        devices.append(new_device)
+        print(f"Neues Gerät erstellt: {device_id}")
+    
+    # Sensordaten erstellen
+    new_data = {
+        "timestamp": datetime.now().isoformat(),
+        "temperature": data.get("temperature"),
+        "humidity": data.get("humidity"),
+        "power": data.get("power"),
+        "energy": data.get("energy"),
+        "relay_state": data.get("relay_state"),
+        "runtime": data.get("runtime")
+    }
+    
+    # Daten hinzufügen
+    if device_id not in sensor_data:
+        sensor_data[device_id] = []
+    
+    # Begrenze die Anzahl der Datenpunkte auf 1000
+    sensor_data[device_id].append(new_data)
+    if len(sensor_data[device_id]) > 1000:
+        sensor_data[device_id] = sensor_data[device_id][-1000:]
+    
+    print(f"Sensordaten gespeichert für Gerät: {device_id}")
+
+
+def update_device_status(device_id: str, status: Any):
+    """
+    Aktualisiert den Status eines Geräts.
+    
+    Args:
+        device_id: Geräte-ID
+        status: Statusdaten
+    """
+    for device in devices:
+        if device["device_id"] == device_id:
+            if isinstance(status, dict):
+                # Status-Attribute aktualisieren
+                if "status" in status:
+                    device["status"] = status["status"]
+                device["last_seen"] = datetime.now().isoformat()
+            elif isinstance(status, str):
+                # Einfacher Status-String
+                device["status"] = status
+                device["last_seen"] = datetime.now().isoformat()
+            print(f"Status aktualisiert für Gerät: {device_id}")
+            return
+    
+    # Wenn das Gerät nicht existiert, ignoriere die Statusmeldung
+    print(f"Statusmeldung ignoriert: Gerät {device_id} nicht gefunden")
+
+
+def update_device_config(device_id: str, config: Any):
+    """
+    Aktualisiert die Konfiguration eines Geräts.
+    
+    Args:
+        device_id: Geräte-ID
+        config: Konfigurationsdaten
+    """
+    for device in devices:
+        if device["device_id"] == device_id:
+            if isinstance(config, dict):
+                # Konfiguration in Gerätedaten speichern
+                if "configuration" not in device:
+                    device["configuration"] = {}
+                device["configuration"].update(config)
+                print(f"Konfiguration aktualisiert für Gerät: {device_id}")
+                return
+    
+    # Wenn das Gerät nicht existiert, ignoriere die Konfiguration
+    print(f"Konfiguration ignoriert: Gerät {device_id} nicht gefunden")
+
+
 @app.post("/api/device/{device_id}/command")
 async def send_device_command(device_id: str, command: DeviceCommand):
-    """Sendet einen Befehl an ein Gerät."""
+    """Sendet einen Befehl an ein Gerät über MQTT."""
     # Prüfen, ob das Gerät existiert
     device_exists = False
     for device in devices:
@@ -270,7 +474,20 @@ async def send_device_command(device_id: str, command: DeviceCommand):
     if not device_exists:
         return JSONResponse(status_code=404, content={"detail": "Gerät nicht gefunden"})
     
-    # In einer echten Implementierung würde hier eine MQTT-Nachricht gesendet
-    print(f"Sende Befehl an Gerät {device_id}: {command.command} = {command.value}")
-    
-    return {"message": "Befehl gesendet"}
+    # Befehl über MQTT senden, wenn der Client verbunden ist
+    if mqtt_client and mqtt_client.is_connected():
+        topic = f"swissairdry/{device_id}/cmd/{command.command}"
+        try:
+            await mqtt_client.publish(topic, command.value)
+            print(f"MQTT-Befehl gesendet: {topic} = {command.value}")
+            return {"message": "Befehl gesendet"}
+        except Exception as e:
+            print(f"Fehler beim Senden des MQTT-Befehls: {e}")
+            return JSONResponse(
+                status_code=500, 
+                content={"detail": f"Fehler beim Senden des Befehls: {str(e)}"}
+            )
+    else:
+        # Fallback, falls MQTT nicht verfügbar ist
+        print(f"MQTT nicht verfügbar. Simuliere Befehl: {device_id}: {command.command} = {command.value}")
+        return {"message": "Befehl simuliert (MQTT nicht verfügbar)"}

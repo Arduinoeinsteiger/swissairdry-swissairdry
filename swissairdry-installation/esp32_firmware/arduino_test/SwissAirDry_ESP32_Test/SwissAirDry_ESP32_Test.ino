@@ -258,3 +258,54 @@ void publishSensorData() {
   mqttClient.publish(mqtt_topic, json.c_str(), true);
   Serial.println("Sensordaten per MQTT gesendet");
 }
+
+// ------ OTA-UPDATES KONFIGURIEREN ------
+void setupOTA() {
+  // Hostname setzen (für einfache Identifizierung im Netzwerk)
+  ArduinoOTA.setHostname(hostname);
+
+  // Passwort setzen (optional)
+  if (strlen(ota_password) > 0) {
+    ArduinoOTA.setPassword(ota_password);
+  }
+
+  // Funktionen für die verschiedenen OTA-Ereignisse festlegen
+  ArduinoOTA.onStart([]() {
+    String type;
+    if (ArduinoOTA.getCommand() == U_FLASH) {
+      type = "sketch";
+    } else { // U_SPIFFS
+      type = "filesystem";
+    }
+    // Hinweis-Ausgabe für Update-Beginn
+    Serial.println("OTA-Update gestartet: " + type);
+  });
+  
+  ArduinoOTA.onEnd([]() {
+    Serial.println("\nOTA-Update abgeschlossen");
+  });
+  
+  ArduinoOTA.onProgress([](unsigned int progress, unsigned int total) {
+    Serial.printf("Fortschritt: %u%%\r", (progress / (total / 100)));
+  });
+  
+  ArduinoOTA.onError([](ota_error_t error) {
+    Serial.printf("Fehler[%u]: ", error);
+    if (error == OTA_AUTH_ERROR) {
+      Serial.println("Authentifizierungsfehler");
+    } else if (error == OTA_BEGIN_ERROR) {
+      Serial.println("Begin-Fehler");
+    } else if (error == OTA_CONNECT_ERROR) {
+      Serial.println("Verbindungsfehler");
+    } else if (error == OTA_RECEIVE_ERROR) {
+      Serial.println("Empfangsfehler");
+    } else if (error == OTA_END_ERROR) {
+      Serial.println("End-Fehler");
+    }
+  });
+  
+  // OTA-Service starten
+  ArduinoOTA.begin();
+  Serial.println("OTA-Updates aktiviert. Hostname: " + String(hostname));
+  Serial.println("Im Arduino IDE: Werkzeuge > Port > Netzwerk-Ports");
+}

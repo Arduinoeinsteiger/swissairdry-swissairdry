@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SwissAirDry Gateway Konfiguration</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f5f5f5;
+    }
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    header {
+      background-color: #0066cc;
+      color: white;
+      padding: 20px;
+      text-align: center;
+    }
+    h1 {
+      margin: 0;
+      font-size: 24px;
+    }
+    .card {
+      background-color: white;
+      border-radius: 5px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      margin-bottom: 20px;
+      padding: 20px;
+    }
+    h2 {
+      margin-top: 0;
+      color: #0066cc;
+      font-size: 18px;
+      border-bottom: 1px solid #eee;
+      padding-bottom: 10px;
+    }
+    label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: bold;
+    }
+    input, select {
+      width: 100%;
+      padding: 8px;
+      margin-bottom: 15px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      box-sizing: border-box;
+    }
+    button {
+      background-color: #0066cc;
+      color: white;
+      border: none;
+      padding: 10px 15px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 16px;
+    }
+    button:hover {
+      background-color: #0055aa;
+    }
+    .status {
+      padding: 10px;
+      margin-top: 20px;
+      border-radius: 4px;
+    }
+    .online {
+      background-color: #d4edda;
+      color: #155724;
+    }
+    .offline {
+      background-color: #f8d7da;
+      color: #721c24;
+    }
+    .message {
+      margin-top: 20px;
+      padding: 10px;
+      border-radius: 4px;
+      display: none;
+    }
+    .success {
+      background-color: #d4edda;
+      color: #155724;
+    }
+    .error {
+      background-color: #f8d7da;
+      color: #721c24;
+    }
+    .tabs {
+      display: flex;
+      margin-bottom: 20px;
+    }
+    .tab {
+      padding: 10px 20px;
+      background-color: #eee;
+      cursor: pointer;
+      margin-right: 5px;
+      border-radius: 4px 4px 0 0;
+    }
+    .tab.active {
+      background-color: white;
+      border: 1px solid #ddd;
+      border-bottom: none;
+    }
+    .tab-content {
+      display: none;
+    }
+    .tab-content.active {
+      display: block;
+    }
+    .checkbox-container {
+      margin-bottom: 15px;
+    }
+    .checkbox-label {
+      display: inline;
+      margin-left: 5px;
+    }
+    input[type="checkbox"] {
+      width: auto;
+    }
+    .help-text {
+      font-size: 12px;
+      color: #666;
+      margin-top: -10px;
+      margin-bottom: 15px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>SwissAirDry Gateway Konfiguration</h1>
+  </header>
+  
+  <div class="container">
+    <div class="tabs">
+      <div class="tab active" data-tab="general">Allgemein</div>
+      <div class="tab" data-tab="network">Netzwerk</div>
+      <div class="tab" data-tab="mqtt">MQTT</div>
+      <div class="tab" data-tab="sensors">Sensoren</div>
+      <div class="tab" data-tab="system">System</div>
+    </div>
+    
+    <form id="configForm">
+      <div class="tab-content active" id="general">
+        <div class="card">
+          <h2>Geräteinformationen</h2>
+          <label for="deviceName">Gerätename</label>
+          <input type="text" id="deviceName" name="device.name" placeholder="z.B. SwissAirDry-Gateway">
+          
+          <label for="deviceId">Geräte-ID</label>
+          <input type="text" id="deviceId" name="device.id" placeholder="z.B. gateway001">
+          
+          <label for="deviceType">Gerätetyp</label>
+          <input type="text" id="deviceType" name="device.type" placeholder="z.B. esp32-gateway">
+        </div>
+      </div>
+      
+      <div class="tab-content" id="network">
+        <div class="card">
+          <h2>WLAN-Einstellungen</h2>
+          <label for="wifiSsid">WLAN-Name (SSID)</label>
+          <input type="text" id="wifiSsid" name="wifi.ssid" placeholder="Ihr WLAN-Name">
+          
+          <label for="wifiPassword">WLAN-Passwort</label>
+          <input type="password" id="wifiPassword" name="wifi.password" placeholder="Ihr WLAN-Passwort">
+          
+          <h2>Access Point Einstellungen</h2>
+          <p class="help-text">Diese Einstellungen werden für den Konfigurationsmodus verwendet.</p>
+          
+          <label for="apSsid">Access Point SSID</label>
+          <input type="text" id="apSsid" name="wifi.ap_ssid" placeholder="z.B. SwissAirDry-Setup">
+          
+          <label for="apPassword">Access Point Passwort</label>
+          <input type="password" id="apPassword" name="wifi.ap_password" placeholder="Mindestens 8 Zeichen">
+        </div>
+      </div>
+      
+      <div class="tab-content" id="mqtt">
+        <div class="card">
+          <h2>MQTT-Einstellungen</h2>
+          <label for="mqttBroker">MQTT-Broker</label>
+          <input type="text" id="mqttBroker" name="mqtt.broker" placeholder="z.B. mqtt.vgnc.org">
+          
+          <label for="mqttPort">MQTT-Port</label>
+          <input type="number" id="mqttPort" name="mqtt.port" placeholder="Standard: 1883">
+          
+          <label for="mqttUsername">MQTT-Benutzername</label>
+          <input type="text" id="mqttUsername" name="mqtt.username" placeholder="Optional">
+          
+          <label for="mqttPassword">MQTT-Passwort</label>
+          <input type="password" id="mqttPassword" name="mqtt.password" placeholder="Optional">
+          
+          <label for="mqttClientId">MQTT-Client-ID</label>
+          <input type="text" id="mqttClientId" name="mqtt.client_id" placeholder="z.B. gateway001">
+          
+          <label for="mqttBaseTopic">MQTT-Basis-Topic</label>
+          <input type="text" id="mqttBaseTopic" name="mqtt.base_topic" placeholder="z.B. swissairdry/devices/gateway001">
+        </div>
+      </div>
+      
+      <div class="tab-content" id="sensors">
+        <div class="card">
+          <h2>Sensoreinstellungen</h2>
+          
+          <div class="checkbox-container">
+            <input type="checkbox" id="useBme280" name="sensors.use_bme280">
+            <label for="useBme280" class="checkbox-label">BME280-Sensor verwenden (statt DHT)</label>
+          </div>
+          
+          <label for="dhtPin">DHT-Sensor-Pin</label>
+          <input type="number" id="dhtPin" name="sensors.dht_pin" placeholder="z.B. 4">
+          
+          <label for="dhtType">DHT-Sensortyp</label>
+          <select id="dhtType" name="sensors.dht_type">
+            <option value="DHT11">DHT11</option>
+            <option value="DHT22">DHT22 (AM2302)</option>
+          </select>
+          
+          <h2>Energiemessung</h2>
+          
+          <div class="checkbox-container">
+            <input type="checkbox" id="energyMeterEnabled" name="sensors.energy_meter_enabled">
+            <label for="energyMeterEnabled" class="checkbox-label">Energiemessung aktivieren</label>
+          </div>
+          
+          <label for="energyMeterRxPin">Energiemesser RX-Pin</label>
+          <input type="number" id="energyMeterRxPin" name="sensors.energy_meter_rx_pin" placeholder="z.B. 16">
+          
+          <label for="energyMeterTxPin">Energiemesser TX-Pin</label>
+          <input type="number" id="energyMeterTxPin" name="sensors.energy_meter_tx_pin" placeholder="z.B. 17">
+        </div>
+      </div>
+      
+      <div class="tab-content" id="system">
+        <div class="card">
+          <h2>Systemeinstellungen</h2>
+          
+          <label for="readInterval">Ausleseintervall (Sekunden)</label>
+          <input type="number" id="readInterval" name="system.read_interval" placeholder="z.B. 60">
+          <p class="help-text">Zeitintervall für das Auslesen der Sensoren</p>
+          
+          <label for="reportingInterval">Berichtsintervall (Sekunden)</label>
+          <input type="number" id="reportingInterval" name="system.reporting_interval" placeholder="z.B. 300">
+          <p class="help-text">Zeitintervall für das Senden der Daten an den MQTT-Broker</p>
+          
+          <div class="checkbox-container">
+            <input type="checkbox" id="otaEnabled" name="system.ota_enabled">
+            <label for="otaEnabled" class="checkbox-label">OTA-Updates aktivieren</label>
+          </div>
+          
+          <div class="checkbox-container">
+            <input type="checkbox" id="debugMode" name="system.debug_mode">
+            <label for="debugMode" class="checkbox-label">Debug-Modus aktivieren</label>
+          </div>
+          
+          <button type="button" id="restartButton">Gerät neu starten</button>
+        </div>
+      </div>
+      
+      <div class="card">
+        <button type="submit" id="saveButton">Konfiguration speichern</button>
+      </div>
+    </form>
+    
+    <div class="card">
+      <h2>Sensordaten</h2>
+      <div id="sensorData">Lade Sensordaten...</div>
+      <button type="button" id="refreshButton">Aktualisieren</button>
+    </div>
+    
+    <div id="message" class="message"></div>
+  </div>
+  
+  <script>
+    // Tabs wechseln
+    document.querySelectorAll('.tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        
+        tab.classList.add('active');
+        document.getElementById(tab.dataset.tab).classList.add('active');
+      });
+    });
+    
+    // Konfiguration vom Server laden
+    async function loadConfig() {
+      try {
+        const response = await fetch('/api/config');
+        const config = await response.json();
+        
+        // Formularfelder mit Konfigurationsdaten füllen
+        document.getElementById('deviceName').value = config.device.name || '';
+        document.getElementById('deviceId').value = config.device.id || '';
+        document.getElementById('deviceType').value = config.device.type || '';
+        
+        document.getElementById('wifiSsid').value = config.wifi.ssid || '';
+        document.getElementById('wifiPassword').value = '';  // Passwort wird aus Sicherheitsgründen nicht angezeigt
+        document.getElementById('apSsid').value = config.wifi.ap_ssid || '';
+        document.getElementById('apPassword').value = '';    // Passwort wird aus Sicherheitsgründen nicht angezeigt
+        
+        document.getElementById('mqttBroker').value = config.mqtt.broker || '';
+        document.getElementById('mqttPort').value = config.mqtt.port || 1883;
+        document.getElementById('mqttUsername').value = config.mqtt.username || '';
+        document.getElementById('mqttPassword').value = '';  // Passwort wird aus Sicherheitsgründen nicht angezeigt
+        document.getElementById('mqttClientId').value = config.mqtt.client_id || '';
+        document.getElementById('mqttBaseTopic').value = config.mqtt.base_topic || '';
+        
+        document.getElementById('useBme280').checked = config.sensors.use_bme280 || false;
+        document.getElementById('dhtPin').value = config.sensors.dht_pin || 4;
+        document.getElementById('dhtType').value = config.sensors.dht_type || 'DHT22';
+        document.getElementById('energyMeterEnabled').checked = config.sensors.energy_meter_enabled || false;
+        document.getElementById('energyMeterRxPin').value = config.sensors.energy_meter_rx_pin || 16;
+        document.getElementById('energyMeterTxPin').value = config.sensors.energy_meter_tx_pin || 17;
+        
+        document.getElementById('readInterval').value = config.system.read_interval || 60;
+        document.getElementById('reportingInterval').value = config.system.reporting_interval || 300;
+        document.getElementById('otaEnabled').checked = config.system.ota_enabled || true;
+        document.getElementById('debugMode').checked = config.system.debug_mode || false;
+        
+        showMessage('Konfiguration erfolgreich geladen.', 'success');
+      } catch (error) {
+        showMessage('Fehler beim Laden der Konfiguration: ' + error.message, 'error');
+      }
+    }
+    
+    // Sensordaten laden
+    async function loadSensorData() {
+      try {
+        const response = await fetch('/api/data');
+        const data = await response.json();
+        
+        let html = '<table style="width:100%">';
+        html += '<tr><th style="text-align:left">Sensor</th><th style="text-align:right">Wert</th></tr>';
+        
+        if (data.temperature) {
+          html += `<tr><td>Temperatur</td><td style="text-align:right">${data.temperature.toFixed(1)} °C</td></tr>`;
+        }
+        
+        if (data.humidity) {
+          html += `<tr><td>Luftfeuchtigkeit</td><td style="text-align:right">${data.humidity.toFixed(1)} %</td></tr>`;
+        }
+        
+        if (data.pressure) {
+          html += `<tr><td>Luftdruck</td><td style="text-align:right">${data.pressure.toFixed(0)} hPa</td></tr>`;
+        }
+        
+        if (data.energy) {
+          html += `<tr><td>Spannung</td><td style="text-align:right">${data.energy.voltage.toFixed(1)} V</td></tr>`;
+          html += `<tr><td>Stromstärke</td><td style="text-align:right">${data.energy.current.toFixed(2)} A</td></tr>`;
+          html += `<tr><td>Leistung</td><td style="text-align:right">${data.energy.power.toFixed(1)} W</td></tr>`;
+          html += `<tr><td>Energieverbrauch</td><td style="text-align:right">${data.energy.energy.toFixed(2)} kWh</td></tr>`;
+        }
+        
+        html += '</table>';
+        document.getElementById('sensorData').innerHTML = html;
+      } catch (error) {
+        document.getElementById('sensorData').innerHTML = 'Fehler beim Laden der Sensordaten: ' + error.message;
+      }
+    }
+    
+    // Konfiguration speichern
+    async function saveConfig(event) {
+      event.preventDefault();
+      
+      try {
+        const formData = new FormData(document.getElementById('configForm'));
+        const config = {
+          device: {},
+          wifi: {},
+          mqtt: {},
+          sensors: {},
+          control: {},
+          system: {}
+        };
+        
+        // Formularwerte in JSON-Objekt umwandeln
+        for (const [key, value] of formData.entries()) {
+          const [section, field] = key.split('.');
+          
+          if (key.includes('enabled') || key.includes('use_') || key.includes('has_') || key.includes('ota_enabled') || key.includes('debug_mode')) {
+            config[section][field] = value === 'on';
+          } else if (!isNaN(value) && value !== '' && !key.includes('password')) {
+            config[section][field] = Number(value);
+          } else {
+            config[section][field] = value;
+          }
+        }
+        
+        // Leere Passwörter ausfiltern, damit sie nicht überschrieben werden
+        if (config.wifi.password === '') delete config.wifi.password;
+        if (config.wifi.ap_password === '') delete config.wifi.ap_password;
+        if (config.mqtt.password === '') delete config.mqtt.password;
+        
+        const response = await fetch('/api/config', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(config)
+        });
+        
+        if (response.ok) {
+          showMessage('Konfiguration gespeichert. Gerät wird neu gestartet...', 'success');
+          setTimeout(() => {
+            window.location.reload();
+          }, 5000);
+        } else {
+          const error = await response.text();
+          showMessage('Fehler beim Speichern der Konfiguration: ' + error, 'error');
+        }
+      } catch (error) {
+        showMessage('Fehler beim Speichern der Konfiguration: ' + error.message, 'error');
+      }
+    }
+    
+    // Gerät neu starten
+    async function restartDevice() {
+      try {
+        const response = await fetch('/api/restart', {
+          method: 'POST'
+        });
+        
+        if (response.ok) {
+          showMessage('Gerät wird neu gestartet...', 'success');
+          setTimeout(() => {
+            window.location.reload();
+          }, 10000); // 10 Sekunden warten, bis das Gerät neu gestartet ist
+        } else {
+          const error = await response.text();
+          showMessage('Fehler beim Neustarten des Geräts: ' + error, 'error');
+        }
+      } catch (error) {
+        showMessage('Fehler beim Neustarten des Geräts: ' + error.message, 'error');
+      }
+    }
+    
+    // Nachricht anzeigen
+    function showMessage(message, type) {
+      const messageElement = document.getElementById('message');
+      messageElement.textContent = message;
+      messageElement.className = 'message ' + type;
+      messageElement.style.display = 'block';
+      
+      // Nachricht nach 5 Sekunden ausblenden
+      setTimeout(() => {
+        messageElement.style.display = 'none';
+      }, 5000);
+    }
+    
+    // Event-Listener
+    document.getElementById('configForm').addEventListener('submit', saveConfig);
+    document.getElementById('restartButton').addEventListener('click', restartDevice);
+    document.getElementById('refreshButton').addEventListener('click', loadSensorData);
+    
+    // Seite initialisieren
+    window.addEventListener('load', () => {
+      loadConfig();
+      loadSensorData();
+    });
+  </script>
+</body>
+</html>

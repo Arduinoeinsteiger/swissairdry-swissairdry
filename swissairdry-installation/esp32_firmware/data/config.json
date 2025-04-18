@@ -1,0 +1,40 @@
+{
+  "device": {
+    "name": "SwissAirDry-Gateway",
+    "id": "gateway001",
+    "type": "esp32-gateway"
+  },
+  "wifi": {
+    "ssid": "",
+    "password": "",
+    "ap_ssid": "SwissAirDry-Setup",
+    "ap_password": "setup1234"
+  },
+  "mqtt": {
+    "broker": "mqtt.vgnc.org",
+    "port": 1883,
+    "username": "",
+    "password": "",
+    "client_id": "gateway001",
+    "base_topic": "swissairdry/devices/gateway001"
+  },
+  "sensors": {
+    "dht_pin": 4,
+    "dht_type": "DHT22",
+    "use_bme280": false,
+    "energy_meter_enabled": false,
+    "energy_meter_rx_pin": 16,
+    "energy_meter_tx_pin": 17
+  },
+  "control": {
+    "relay_pin": 5,
+    "has_speed_control": false,
+    "speed_control_pin": 13
+  },
+  "system": {
+    "read_interval": 60,
+    "reporting_interval": 300,
+    "ota_enabled": true,
+    "debug_mode": true
+  }
+}

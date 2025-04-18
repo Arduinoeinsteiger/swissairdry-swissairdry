@@ -15,10 +15,12 @@ const char* ssid = "SSID";        // WLAN-Name
 const char* password = "PASSWORT"; // WLAN-Passwort
 
 // GPIO-Konfiguration für ESP8266
-#define LED_PIN D4       // Eingebaute LED an D4 (GPIO2) - invertiert
-#define LED_ON LOW       // LED ist bei LOW eingeschaltet (invertiert)
-#define LED_OFF HIGH     // LED ist bei HIGH ausgeschaltet
-// SDA und SCL sind bei ESP8266 fest auf D2 (GPIO4) und D1 (GPIO5)
+// Direkte Verwendung von GPIO-Nummern anstelle von Dx-Bezeichnungen
+const int LED_PIN = 2;      // GPIO2 (entspricht D4 auf WeMos D1 Mini)
+const int LED_ON = LOW;     // LED ist bei LOW eingeschaltet (invertiert)
+const int LED_OFF = HIGH;   // LED ist bei HIGH ausgeschaltet
+const int SDA_PIN = 4;      // GPIO4 (entspricht D2 auf WeMos D1 Mini)
+const int SCL_PIN = 5;      // GPIO5 (entspricht D1 auf WeMos D1 Mini)
 
 // Display-Konfiguration
 #define OLED_WIDTH 128
@@ -45,8 +47,8 @@ void setup() {
   pinMode(LED_PIN, OUTPUT);
   digitalWrite(LED_PIN, LED_OFF);
   
-  // I2C für Display initialisieren - bei ESP8266 feste Pins (D2=SDA, D1=SCL)
-  Wire.begin();
+  // I2C für Display initialisieren - bei ESP8266 feste Pins (GPIO4/SDA, GPIO5/SCL)
+  Wire.begin(SDA_PIN, SCL_PIN);
   
   // Display initialisieren
   if(!display.begin(SSD1306_SWITCHCAPVCC, OLED_ADDR)) {

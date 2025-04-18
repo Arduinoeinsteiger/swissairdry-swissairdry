@@ -1,7 +1,6 @@
-// SwissAirDry Universal OTA-Skript
+// SwissAirDry Universal OTA-Skript - Verbesserte Version
 // Unterstützt automatisch ESP8266 (D1 Mini, NodeMCU, etc.) und ESP32 (alle Varianten)
-// Automatische Erkennung von OLED-Displays
-// Flexibel konfigurierbar durch Anpassung der Konfigurationssektion
+// Stabile Board-Erkennung ohne Abhängigkeit von speziellen Build-Flags
 
 // ----- BIBLIOTHEKEN -----
 // Bedingte Kompilierung für unterschiedliche Board-Typen
@@ -37,7 +36,6 @@ const char* devicePrefix = "SwissAirDry-";
 
 // Hardware-Konfiguration
 // Diese Werte werden automatisch basierend auf der erkannten Hardware gesetzt
-// Du kannst sie aber auch manuell überschreiben, wenn nötig
 #if defined(ESP8266)
   // D1 Mini / NodeMCU (ESP8266) Standard-Pins
   #define DEFAULT_LED_PIN D4     // Eingebaute LED auf D4 bei D1 Mini/NodeMCU
@@ -54,7 +52,7 @@ const char* devicePrefix = "SwissAirDry-";
   #define DEFAULT_SCL_PIN 22     // Standard SCL bei ESP32
 #endif
 
-// Aktuelle Hardware-Konfiguration (kann später angepasst werden)
+// Aktuelle Hardware-Konfiguration
 int LED_PIN = DEFAULT_LED_PIN;
 int LED_ON = DEFAULT_LED_ON;
 int LED_OFF = DEFAULT_LED_OFF;
@@ -82,29 +80,46 @@ void detectBoard() {
   // ESP-Typ erkennen und anzeigen
   #if defined(ESP8266)
     Serial.println("Board: ESP8266");
-    // ESP8266-spezifische Erkennung
-    // Bei Bedarf könnte man hier bestimmte ESP8266-Boards anhand von GPIOs unterscheiden
     
     // Chip-ID auslesen
     uint16_t chipId = ESP.getChipId() & 0xFFFF;
     deviceName = String(devicePrefix) + String(chipId, HEX);
+    
   #elif defined(ESP32)
     Serial.println("Board: ESP32");
-    // ESP32-Board-Type erkennen
-    #if defined(CONFIG_IDF_TARGET_ESP32S3)
-      Serial.println("Variante: ESP32-S3");
-      // ESP32-S3 spezifische Anpassungen
-      LED_PIN = 38;  // Typisch für ESP32-S3
-    #elif defined(CONFIG_IDF_TARGET_ESP32S2)
-      Serial.println("Variante: ESP32-S2");
-    #elif defined(CONFIG_IDF_TARGET_ESP32C3)
-      Serial.println("Variante: ESP32-C3");
-      LED_PIN = 8;   // Typisch für ESP32-C3
-    #else
-      Serial.println("Variante: ESP32 Standard");
-    #endif
     
-    // Chip-ID auslesen
+    // Einfache ESP32-Varianten-Erkennung ohne komplizierte Build-Flags
+    // Basiert auf verfügbaren Pins und CPU-Eigenschaften
+    
+    // Chip-Revision prüfen für grobe Erkennung
+    esp_chip_info_t chip_info;
+    esp_chip_info(&chip_info);
+    
+    if (chip_info.model == CHIP_ESP32) {
+      Serial.println("Variante: ESP32 Standard");
+      LED_PIN = 2;  // Standard LED_PIN für ESP32
+    }
+    else if (chip_info.model == CHIP_ESP32S2) {
+      Serial.println("Variante: ESP32-S2");
+      LED_PIN = 2;  // Angepasst für S2
+    }
+    else if (chip_info.model == CHIP_ESP32S3) {
+      Serial.println("Variante: ESP32-S3");
+      LED_PIN = 38; // Häufiger LED_PIN für S3
+      SDA_PIN = 8;  // Häufige I2C-Pins für S3
+      SCL_PIN = 9;
+    }
+    else if (chip_info.model == CHIP_ESP32C3) {
+      Serial.println("Variante: ESP32-C3");
+      LED_PIN = 8;  // Typisch für C3
+      SDA_PIN = 5;  // Häufige I2C-Pins für C3
+      SCL_PIN = 6;
+    }
+    else {
+      Serial.println("Variante: Unbekannte ESP32-Variante");
+    }
+    
+    // Chip-ID für ESP32 generieren
     uint32_t chipId = 0;
     for(int i=0; i<17; i=i+8) {
       chipId |= ((ESP.getEfuseMac() >> (40 - i)) & 0xff) << i;
@@ -114,6 +129,15 @@ void detectBoard() {
   
   Serial.print("Geräte-ID: ");
   Serial.println(deviceName);
+  Serial.print("LED-Pin: ");
+  Serial.println(LED_PIN);
+  
+  #if USE_DISPLAY
+  Serial.print("I2C-Pins: SDA=");
+  Serial.print(SDA_PIN);
+  Serial.print(", SCL=");
+  Serial.println(SCL_PIN);
+  #endif
 }
 
 // ----- DISPLAY-INITIALISIERUNG -----

@@ -22,10 +22,10 @@ from fastapi.templating import Jinja2Templates
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 
-from app.database import engine, get_db, Base
-from app import models, schemas, crud
-from app.mqtt import MQTTClient
-from app.utils import generate_api_key, verify_api_key
+from database import engine, get_db, Base
+import models, schemas, crud
+from mqtt import MQTTClient
+from utils import generate_api_key, verify_api_key
 
 # Logging einrichten
 logging.basicConfig(
@@ -58,8 +58,11 @@ app.add_middleware(
 )
 
 # Templates und statische Dateien einrichten
-templates = Jinja2Templates(directory="templates")
-app.mount("/static", StaticFiles(directory="static"), name="static")
+templates_dir = os.path.join(os.path.dirname(__file__), "templates")
+static_dir = os.path.join(os.path.dirname(__file__), "static")
+
+templates = Jinja2Templates(directory=templates_dir)
+app.mount("/static", StaticFiles(directory=static_dir), name="static")
 
 # MQTT-Client initialisieren
 mqtt_client = None

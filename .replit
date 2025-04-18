@@ -11,6 +11,10 @@ author = "agent"
 task = "workflow.run"
 args = "SwissAirDry API"
 
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "SwissAirDry Simple API"
+
 [[workflows.workflow]]
 name = "SwissAirDry API"
 author = "agent"
@@ -24,6 +28,21 @@ task = "packager.installForAll"
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "cd swissairdry/api/app && python run.py"
+waitForPort = 5000
+
+[[workflows.workflow]]
+name = "SwissAirDry Simple API"
+author = "agent"
+
+[workflows.workflow.metadata]
+agentRequireRestartOnSave = false
+
+[[workflows.workflow.tasks]]
+task = "packager.installForAll"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "cd swissairdry/api && python start_simple.py"
 waitForPort = 5000
 
 [deployment]

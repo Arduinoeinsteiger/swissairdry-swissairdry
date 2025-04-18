@@ -14,7 +14,9 @@ import uvicorn
 # Füge das aktuelle Verzeichnis zum Python-Pfad hinzu,
 # damit Python die Module finden kann
 current_dir = os.path.dirname(os.path.abspath(__file__))
-sys.path.insert(0, os.path.dirname(current_dir))
+app_dir = os.path.join(current_dir, 'app')
+sys.path.insert(0, current_dir)
+sys.path.insert(0, app_dir)
 
 if __name__ == "__main__":
     port = int(os.getenv("PORT", 5000))
@@ -22,8 +24,9 @@ if __name__ == "__main__":
     
     print(f"SwissAirDry API Server startet...")
     
+    # Starte den API-Server
     uvicorn.run(
-        "swissairdry.api.app.run:app",
+        "app.run:app",
         host=host,
         port=port,
         reload=True,

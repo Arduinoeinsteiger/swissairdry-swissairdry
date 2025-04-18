@@ -31,6 +31,7 @@ run = ["sh", "-c", "cd docker-base-api/app && python run.py"]
 
 [nix]
 channel = "stable-24_05"
+packages = ["cargo", "freetype", "glibcLocales", "lcms2", "libiconv", "libimagequant", "libjpeg", "libtiff", "libwebp", "libxcrypt", "openjpeg", "rustc", "tcl", "tk", "zlib"]
 
 [[ports]]
 localPort = 5000

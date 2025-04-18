@@ -1,0 +1,22 @@
+FQBN: esp32:esp32:esp32_family
+Verwende das Board 'esp32_family' von der Plattform im Ordner: C:\Users\gobet\AppData\Local\Arduino15\packages\esp32\hardware\esp32\3.2.0
+Verwendung des Kerns 'arduino' von Platform im Ordner: C:\Users\gobet\AppData\Local\Arduino15\packages\esp32\hardware\esp32\3.2.0
+
+cmd /c if exist "C:\\Users\\gobet\\OneDrive\\Desktop\\SwissAirDry_Universal_OTA_Fixed\\partitions.csv" COPY /y "C:\\Users\\gobet\\OneDrive\\Desktop\\SwissAirDry_Universal_OTA_Fixed\\partitions.csv" "C:\\Users\\gobet\\AppData\\Local\\arduino\\sketches\\52BE153632A69226FEA564B68E0ED170\\partitions.csv"
+        1 Datei(en) kopiert.
+cmd /c if not exist "C:\\Users\\gobet\\AppData\\Local\\arduino\\sketches\\52BE153632A69226FEA564B68E0ED170\\partitions.csv" if exist "\\partitions.csv" COPY "\\partitions.csv" "C:\\Users\\gobet\\AppData\\Local\\arduino\\sketches\\52BE153632A69226FEA564B68E0ED170\\partitions.csv"
+cmd /c if not exist "C:\\Users\\gobet\\AppData\\Local\\arduino\\sketches\\52BE153632A69226FEA564B68E0ED170\\partitions.csv" COPY "C:\\Users\\gobet\\AppData\\Local\\Arduino15\\packages\\esp32\\hardware\\esp32\\3.2.0\\tools\\partitions\\{build.partitions}.csv" "C:\\Users\\gobet\\AppData\\Local\\arduino\\sketches\\52BE153632A69226FEA564B68E0ED170\\partitions.csv"
+cmd /c IF EXIST "C:\\Users\\gobet\\OneDrive\\Desktop\\SwissAirDry_Universal_OTA_Fixed\\bootloader.bin" ( COPY /y "C:\\Users\\gobet\\OneDrive\\Desktop\\SwissAirDry_Universal_OTA_Fixed\\bootloader.bin" "C:\\Users\\gobet\\AppData\\Local\\arduino\\sketches\\52BE153632A69226FEA564B68E0ED170\\SwissAirDry_Universal_OTA_Fixed.ino.bootloader.bin" ) ELSE ( IF EXIST "\\bootloader.bin" ( COPY "\\bootloader.bin" "C:\\Users\\gobet\\AppData\\Local\\arduino\\sketches\\52BE153632A69226FEA564B68E0ED170\\SwissAirDry_Universal_OTA_Fixed.ino.bootloader.bin" ) ELSE ( "C:\\Users\\gobet\\AppData\\Local\\Arduino15\\packages\\esp32\\tools\\esptool_py\\4.9.dev3\\esptool.exe" --chip {build.mcu} elf2image --flash_mode dio --flash_freq 80m --flash_size 4MB -o "C:\\Users\\gobet\\AppData\\Local\\arduino\\sketches\\52BE153632A69226FEA564B68E0ED170\\SwissAirDry_Universal_OTA_Fixed.ino.bootloader.bin" "C:\\Users\\gobet\\AppData\\Local\\Arduino15\\packages\\esp32\\tools\\esp32-arduino-libs\\idf-release_v5.4-2f7dcd86-v1\\{build.mcu}\\bin\\bootloader_qio_80m.elf" ) )
+usage: esptool [-h]
+               [--chip {auto,esp8266,esp32,esp32s2,esp32s3beta2,esp32s3,esp32c3,esp32c6beta,esp32h2beta1,esp32h2beta2,esp32c2,esp32c6,esp32c61,esp32c5,esp32c5beta3,esp32h2,esp32p4}]
+               [--port PORT] [--baud BAUD] [--port-filter PORT_FILTER]
+               [--before {default_reset,usb_reset,no_reset,no_reset_no_sync}]
+               [--after {hard_reset,soft_reset,no_reset,no_reset_stub}]
+               [--no-stub] [--trace] [--override-vddsdio [{1.8V,1.9V,OFF}]]
+               [--connect-attempts CONNECT_ATTEMPTS]
+               {load_ram,dump_mem,read_mem,write_mem,write_flash,run,image_info,make_image,elf2image,read_mac,chip_id,flash_id,read_flash_status,write_flash_status,read_flash,verify_flash,erase_flash,erase_region,read_flash_sfdp,merge_bin,get_security_info,version}
+               ...
+esptool: error: argument --chip/-c: invalid choice: '{build.mcu}' (choose from 'auto', 'esp8266', 'esp32', 'esp32s2', 'esp32s3beta2', 'esp32s3', 'esp32c3', 'esp32c6beta', 'esp32h2beta1', 'esp32h2beta2', 'esp32c2', 'esp32c6', 'esp32c61', 'esp32c5', 'esp32c5beta3', 'esp32h2', 'esp32p4')
+exit status 2
+
+Compilation error: exit status 2

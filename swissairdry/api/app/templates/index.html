@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SwissAirDry API</title>
+    <style>
+        :root {
+            --primary-color: #0066cc;
+            --secondary-color: #004999;
+            --accent-color: #ff6600;
+            --light-color: #f5f9ff;
+            --dark-color: #333;
+            --success-color: #28a745;
+            --warning-color: #ffc107;
+            --danger-color: #dc3545;
+            --gray-color: #6c757d;
+            --light-gray: #e9ecef;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: var(--dark-color);
+            background-color: #f8f9fa;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Header */
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 30px 0;
+            background-color: var(--light-color);
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        header h1 {
+            color: var(--primary-color);
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            color: var(--gray-color);
+        }
+
+        /* Cards */
+        .info-card {
+            background-color: white;
+            border-radius: 8px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .info-card h2 {
+            color: var(--primary-color);
+            margin-bottom: 15px;
+            border-bottom: 2px solid var(--light-gray);
+            padding-bottom: 10px;
+        }
+
+        .info-card p {
+            margin-bottom: 15px;
+        }
+
+        /* API Endpoints */
+        .api-section {
+            margin-bottom: 30px;
+        }
+
+        .api-section h2 {
+            color: var(--primary-color);
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .endpoints {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .endpoint {
+            background-color: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .endpoint h3 {
+            color: var(--secondary-color);
+            margin-bottom: 15px;
+            border-bottom: 1px solid var(--light-gray);
+            padding-bottom: 8px;
+        }
+
+        .endpoint ul {
+            list-style-type: none;
+        }
+
+        .endpoint li {
+            margin-bottom: 10px;
+            padding-left: 10px;
+            border-left: 3px solid var(--light-gray);
+        }
+
+        .endpoint li:hover {
+            border-left-color: var(--accent-color);
+        }
+
+        .method {
+            display: inline-block;
+            padding: 2px 6px;
+            margin-right: 8px;
+            background-color: var(--primary-color);
+            color: white;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        /* Buttons */
+        .button {
+            display: inline-block;
+            padding: 10px 20px;
+            margin: 10px 5px;
+            background-color: var(--primary-color);
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+
+        .button:hover {
+            background-color: var(--secondary-color);
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            padding: 20px 0;
+            color: var(--gray-color);
+            border-top: 1px solid var(--light-gray);
+        }
+
+        footer a {
+            color: var(--primary-color);
+            text-decoration: none;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            header {
+                padding: 20px 0;
+            }
+            
+            header h1 {
+                font-size: 2rem;
+            }
+            
+            .endpoints {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>SwissAirDry API</h1>
+            <p class="subtitle">Herzlich willkommen bei der SwissAirDry API</p>
+        </header>
+        
+        <section class="info-card">
+            <h2>API-Information</h2>
+            <p>Diese API dient als Schnittstelle für SwissAirDry-Geräte und -Anwendungen.</p>
+            <p>Sie ermöglicht die Verwaltung von Geräten, Kunden, Aufträgen und Sensordaten.</p>
+        </section>
+        
+        <section class="api-section">
+            <h2>API-Endpunkte</h2>
+            <div class="endpoints">
+                <div class="endpoint">
+                    <h3>Geräte-API</h3>
+                    <ul>
+                        <li><span class="method">GET</span> /api/devices - Liste aller Geräte</li>
+                        <li><span class="method">POST</span> /api/devices - Neues Gerät erstellen</li>
+                        <li><span class="method">GET</span> /api/devices/{device_id} - Gerätdetails abrufen</li>
+                        <li><span class="method">PUT</span> /api/devices/{device_id} - Gerät aktualisieren</li>
+                        <li><span class="method">DELETE</span> /api/devices/{device_id} - Gerät löschen</li>
+                    </ul>
+                </div>
+                
+                <div class="endpoint">
+                    <h3>Sensordaten-API</h3>
+                    <ul>
+                        <li><span class="method">POST</span> /api/device/{device_id}/data - Sensordaten senden</li>
+                        <li><span class="method">GET</span> /api/device/{device_id}/data - Sensordaten abrufen</li>
+                    </ul>
+                </div>
+                
+                <div class="endpoint">
+                    <h3>Kunden-API</h3>
+                    <ul>
+                        <li><span class="method">GET</span> /api/customers - Liste aller Kunden</li>
+                        <li><span class="method">POST</span> /api/customers - Neuen Kunden erstellen</li>
+                        <li><span class="method">GET</span> /api/customers/{customer_id} - Kundendetails abrufen</li>
+                    </ul>
+                </div>
+                
+                <div class="endpoint">
+                    <h3>Auftrags-API</h3>
+                    <ul>
+                        <li><span class="method">GET</span> /api/jobs - Liste aller Aufträge</li>
+                        <li><span class="method">POST</span> /api/jobs - Neuen Auftrag erstellen</li>
+                        <li><span class="method">GET</span> /api/jobs/{job_id} - Auftragsdetails abrufen</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+        
+        <section class="info-card">
+            <h2>Dokumentation</h2>
+            <p>Die vollständige API-Dokumentation finden Sie unter:</p>
+            <a href="/docs" class="button">OpenAPI-Dokumentation</a>
+            <a href="/redoc" class="button">ReDoc-Dokumentation</a>
+        </section>
+        
+        <footer>
+            <p>&copy; 2023-2025 Swiss Air Dry Team</p>
+            <p><a href="/admin">Admin-Bereich</a> | <a href="/health">Status</a></p>
+        </footer>
+    </div>
+</body>
+</html>

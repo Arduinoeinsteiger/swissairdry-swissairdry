@@ -35,3 +35,4 @@ packages = ["cargo", "freetype", "glibcLocales", "lcms2", "libiconv", "libimageq
 
 [[ports]]
 localPort = 5000
+externalPort = 80

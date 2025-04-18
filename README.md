@@ -1,4 +1,5 @@
-# SwissAirDry Projekt
+# SwissAirDry System Projekt in Nextcloud 
+von Valentino Gobetti 
 
 ## Überblick
 

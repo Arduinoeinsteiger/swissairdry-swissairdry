@@ -1,0 +1,27 @@
+# Verwende Python 3.11 slim als Basis-Image
+FROM python:3.11-slim
+
+# Setze Arbeitsverzeichnis
+WORKDIR /app
+
+# Installiere notwendige Systemabhängigkeiten
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    gcc \
+    python3-dev \
+    curl \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
+# Kopiere requirements.txt und installiere Python-Abhängigkeiten
+COPY requirements.simple.txt .
+RUN pip install --no-cache-dir -r requirements.simple.txt
+
+# Kopiere Anwendungscode
+COPY start_simple.py .
+RUN mkdir -p logs
+
+# Setze Umgebungsvariablen
+ENV PORT=5001
+
+# Starte die Anwendung
+CMD ["uvicorn", "start_simple:app", "--host", "0.0.0.0", "--port", "5001"] 

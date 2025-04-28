@@ -1,0 +1,24 @@
+$TTL 86400
+@       IN      SOA     ns1.vgnc.org. admin.vgnc.org. (
+                        2025042801  ; Serial
+                        3600        ; Refresh
+                        1800        ; Retry
+                        604800      ; Expire
+                        86400       ; Minimum TTL
+                        )
+
+; Name Server Records
+@       IN      NS      ns1.vgnc.org.
+@       IN      NS      ns2.vgnc.org.
+
+; A Records
+@       IN      A       127.0.0.1
+ns1     IN      A       127.0.0.1
+ns2     IN      A       127.0.0.1
+
+; MX Records
+@       IN      MX  10  mail.vgnc.org.
+
+; CNAME Records
+www     IN      CNAME   @
+mail    IN      CNAME   @ 

@@ -1,0 +1,136 @@
+version: "3.8"
+
+services:
+  # Portainer
+  portainer:
+    image: portainer/portainer-ce:latest
+    container_name: swissairdry-portainer
+    restart: unless-stopped
+    ports:
+      - "9000:9000"
+      - "9443:9443"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - portainer_data:/data
+    networks:
+      - swissairdry-network
+
+  # PostgreSQL Datenbank
+  db:
+    image: postgres:14-alpine
+    container_name: swissairdry-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: swissairdry
+      POSTGRES_DB: swissairdry
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    networks:
+      - swissairdry-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    
+  # MQTT Broker
+  mqtt:
+    image: eclipse-mosquitto:2.0
+    container_name: swissairdry-mqtt
+    restart: unless-stopped
+    ports:
+      - "1883:1883"
+      - "9001:9001"
+    volumes:
+      - ./mosquitto/config:/mosquitto/config
+      - ./mosquitto/config/mosquitto.conf:/mosquitto/config/mosquitto.conf
+      - mqtt-data:/mosquitto/data
+      - mqtt-log:/mosquitto/log
+    networks:
+      - swissairdry-network
+    healthcheck:
+      test: ["CMD", "mosquitto_sub", "-t", "$$", "-C", "1", "-i", "healthcheck", "-W", "3"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    environment:
+      - MQTT_ALLOW_ANONYMOUS=${MQTT_ALLOW_ANONYMOUS:-true}
+      - MQTT_SSL_ENABLED=${MQTT_SSL_ENABLED:-false}
+      - MQTT_AUTH_ENABLED=${MQTT_AUTH_ENABLED:-false}
+  
+  # Main API (FastAPI)
+  api:
+    image: ${REGISTRY_URL:-ghcr.io/arduinoeinsteiger}/swissairdry-api:${IMAGE_TAG:-latest}
+    build:
+      context: ./api
+      dockerfile: Dockerfile
+    container_name: swissairdry-api
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+    env_file:
+      - .env
+    environment:
+      - API_HOST=0.0.0.0
+      - API_PORT=5000
+      - DB_HOST=db
+      - MQTT_BROKER=mqtt
+    volumes:
+      - ./api:/app
+      - api-logs:/app/logs
+    networks:
+      - swissairdry-network
+    depends_on:
+      db:
+        condition: service_healthy
+      mqtt:
+        condition: service_started
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+  
+  # Simple API (FastAPI)
+  simple-api:
+    image: ${REGISTRY_URL:-ghcr.io/arduinoeinsteiger}/swissairdry-simple-api:${IMAGE_TAG:-latest}
+    build:
+      context: ./simple-api
+      dockerfile: Dockerfile
+    container_name: swissairdry-simple-api
+    restart: unless-stopped
+    ports:
+      - "5001:5001"
+    env_file:
+      - .env
+    environment:
+      - API_HOST=0.0.0.0
+      - API_PORT=5001
+      - MQTT_BROKER=mqtt
+      - MQTT_CLIENT_ID=${MQTT_SIMPLE_CLIENT_ID:-swissairdry-simple-api}
+    volumes:
+      - ./simple-api:/app
+      - simple-api-logs:/app/logs
+    networks:
+      - swissairdry-network
+    depends_on:
+      mqtt:
+        condition: service_started
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+networks:
+  swissairdry-network:
+    driver: bridge
+
+volumes:
+  portainer_data:
+  db-data:
+  mqtt-data:
+  mqtt-log:
+  api-logs:
+  simple-api-logs: 
